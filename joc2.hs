@@ -1,4 +1,4 @@
-import Data.Map (Map)
+import Data.Map.Strict (Map)
 import qualified Data.Map as Map
 
 
@@ -10,10 +10,14 @@ data Taulell = Taulell
     
 data Coord = Coord Int Int
 
-data Color = Groc | Vermell deriving(Show)
+data Color = Groc | Vermell deriving(Show, Eq)
 
+{-# LANGUAGE ParallelListComp #-}
 instance Show Taulell where
-    show (Taulell n m ma) = concat [(show i) | i <- [0 .. m-1]]
+    show (Taulell n m ma) = unlines [concat [(show i) | i <- [0 .. m-1]] ++ "\n" ++
+                            [(showColor (obteCasella (Coord nn mm) (Taulell n m ma))) |
+                             nn <- [0 .. n-1] , mm <- [0 .. m-1]]    ]
+        
 
     
     
@@ -39,12 +43,16 @@ readPeca ' ' = Nothing
 readPeca c = Just (readColor c)
 -}
 
-showColor :: Color -> Char
-showColor Groc = 'G'
-showColor Vermell = 'V'
+showColor :: Maybe Color -> Char
+showColor Nothing = ' '
+showColor (Just c)
+    |c == Groc = 'G'
+    |otherwise = 'V'
+
     
 
-readColor :: Char -> Color
-readColor 'G' = Groc
-readColor 'V' = Vermell
+readColor :: Char -> Maybe Color
+readColor 'G' = (Just Groc)
+readColor 'V' = (Just Vermell)
+readColor ' ' = Nothing
 
