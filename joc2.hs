@@ -55,6 +55,26 @@ cuatreHoritzontal coord taulell color
     |(cuatreHoritzontalEsquerra coord taulell color 0) = True
     |(cuatreHoritzontalDreta coord taulell color 0) = True
     |otherwise = False
+
+cuatreVerticalDalt ::  Coord -> Taulell -> Color -> Int -> Bool
+cuatreVerticalDalt (Coord x y) (Taulell n m ma) color count
+    |count > 3 = True
+    |x < 1 || y < 1 || x > n || y > m = False 
+    |Map.lookup (x,y) ma /= (Just color) = False
+    |Map.lookup (x,y) ma == (Just color) = (cuatreVerticalDalt (Coord (x+1) y) (Taulell n m ma) color (count+1))
+    
+cuatreVerticalBaix ::  Coord -> Taulell -> Color -> Int -> Bool
+cuatreVerticalBaix (Coord x y) (Taulell n m ma) color count
+    |count > 3 = True
+    |x < 1 || y < 1 || x > n || y > m = False 
+    |Map.lookup (x,y) ma /= (Just color) = False
+    |Map.lookup (x,y) ma == (Just color) = (cuatreVerticalBaix (Coord (x-1) y) (Taulell n m ma) color (count+1))
+
+cuatreVertical :: Coord -> Taulell -> Color -> Bool
+cuatreVertical coord taulell color
+    |(cuatreVerticalDalt coord taulell color 0) = True
+    |(cuatreVerticalBaix coord taulell color 0) = True
+    |otherwise = False
     
 --llistaGrocs :: Taulell -> [Coord]
 --llistaGrocs (Taulell n m ma) = unlines $ [[(Coord nn mm) | mm <- [1.. m]] | nn <- [1..n], esGroc((Coord nn mm) (Taulell n m ma))]
