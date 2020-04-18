@@ -3,7 +3,7 @@ import qualified Data.Map as Map
 
 
 data Taulell = Taulell
-    { n    :: Int
+    { n :: Int
     , m :: Int
     , casella :: Map (Int, Int) Color
     }
@@ -33,8 +33,31 @@ esVermell (Coord n m) (Taulell nn mm ma)
     |Map.lookup (n,m) ma == Just Vermell = True
     |otherwise = False
     
+    
+    
+cuatreHoritzontalEsquerra :: Coord -> Taulell -> Color -> Int -> Bool
+cuatreHoritzontalEsquerra (Coord x y) (Taulell n m ma) color count
+    |count > 3 = True
+    |x < 1 || y < 1 || x > n || y > m = False 
+    |Map.lookup (x,y) ma /= (Just color) = False
+    |Map.lookup (x,y) ma == (Just color) = (cuatreHoritzontalEsquerra (Coord x (y-1)) (Taulell n m ma) color (count+1))
+
+cuatreHoritzontalDreta :: Coord -> Taulell -> Color -> Int -> Bool
+cuatreHoritzontalDreta (Coord x y) (Taulell n m ma) color count
+    |count > 3 = True
+    |x < 1 || y < 1 || x > n || y > m = False 
+    |Map.lookup (x,y) ma /= (Just color) = False
+    |Map.lookup (x,y) ma == (Just color) = (cuatreHoritzontalDreta (Coord x (y+1)) (Taulell n m ma) color (count+1))
+    
+    
+cuatreHoritzontal :: Coord -> Taulell -> Color -> Bool
+cuatreHoritzontal coord taulell color
+    |(cuatreHoritzontalEsquerra coord taulell color 0) = True
+    |(cuatreHoritzontalDreta coord taulell color 0) = True
+    |otherwise = False
+    
 --llistaGrocs :: Taulell -> [Coord]
---llistaGrocs (Taulell n m ma) = [[(Coord nn mm) | mm <- [1.. m]] | nn <- [1..n], esGroc((Coord nn mm))]
+--llistaGrocs (Taulell n m ma) = unlines $ [[(Coord nn mm) | mm <- [1.. m]] | nn <- [1..n], esGroc((Coord nn mm) (Taulell n m ma))]
     
 --Donat un color i un taulell diu si hi ha 4 en ratlla d'aquets color
 cuatreEnRatlla :: Color -> Taulell -> Bool
