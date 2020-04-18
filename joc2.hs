@@ -22,8 +22,26 @@ instance Show Taulell where
 instance Show Taulell where
     show (Taulell n m ma) = unlines $  [[(showColor (obteCasella (Coord nn mm) (Taulell n m ma))) | mm <- [1.. m]] | nn <- [1..n]] ++ [concat [(show i) | i <- [1 .. m]]]                            
 
--- t = Taulell 6 7 (Map.fromList [((5,0),Groc),((5,1),Groc),((5,2),Groc),((5,3),Vermell),((4,1),Vermell),((4,2),Vermell),((3,1),Vermell)])
 
+esGroc :: Coord -> Taulell -> Bool
+esGroc (Coord n m) (Taulell nn mm ma) 
+    |Map.lookup (n,m) ma == Just Groc = True
+    |otherwise = False
+
+esVermell :: Coord -> Taulell -> Bool
+esVermell (Coord n m) (Taulell nn mm ma) 
+    |Map.lookup (n,m) ma == Just Vermell = True
+    |otherwise = False
+    
+--llistaGrocs :: Taulell -> [Coord]
+--llistaGrocs (Taulell n m ma) = [[(Coord nn mm) | mm <- [1.. m]] | nn <- [1..n], esGroc((Coord nn mm))]
+    
+--Donat un color i un taulell diu si hi ha 4 en ratlla d'aquets color
+cuatreEnRatlla :: Color -> Taulell -> Bool
+cuatreEnRatlla = undefined
+
+
+-- t = Taulell 6 7 (Map.fromList [((6,1),Groc),((6,2),Groc),((6,3),Groc),((6,4),Vermell),((5,2),Vermell),((5,3),Vermell),((4,2),Vermell)])
     
 --consulta al taulell si existeix una peça a les coordenades especificades, retorna nothing si no hi ha res o Just Peca
 obteCasella :: Coord-> Taulell -> Maybe Color
