@@ -12,14 +12,18 @@ data Coord = Coord Int Int
 
 data Color = Groc | Vermell deriving(Show, Eq)
 
-{-# LANGUAGE ParallelListComp #-}
+{-
 instance Show Taulell where
     show (Taulell n m ma) = unlines [concat [(show i) | i <- [0 .. m-1]] ++ "\n" ++
-                            [(showColor (obteCasella (Coord nn mm) (Taulell n m ma))) |
-                             nn <- [0 .. n-1] , mm <- [0 .. m-1]]    ]
-        
+                            [[(showColor (obteCasella (Coord nn mm) (Taulell n m ma))) |
+                             nn <- [0 .. n-1]] | mm <- [0 .. m-1]]    ]
+                             -}
+                             
+instance Show Taulell where
+    show (Taulell n m ma) = unlines $  [[(showColor (obteCasella (Coord nn mm) (Taulell n m ma))) | mm <- [0.. m-1]] | nn <- [0..n-1]] ++ [concat [(show i) | i <- [0 .. m-1]]]                            
 
-    
+-- t = Taulell 6 7 (Map.fromList [((5,0),Groc),((5,1),Groc),((5,2),Groc),((5,3),Vermell),((4,1),Vermell),((4,2),Vermell),((3,1),Vermell)])
+
     
 --consulta al taulell si existeix una peça a les coordenades especificades, retorna nothing si no hi ha res o Just Peca
 obteCasella :: Coord-> Taulell -> Maybe Color
