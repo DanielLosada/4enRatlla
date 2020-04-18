@@ -20,7 +20,7 @@ instance Show Taulell where
                              -}
                              
 instance Show Taulell where
-    show (Taulell n m ma) = unlines $  [[(showColor (obteCasella (Coord nn mm) (Taulell n m ma))) | mm <- [0.. m-1]] | nn <- [0..n-1]] ++ [concat [(show i) | i <- [0 .. m-1]]]                            
+    show (Taulell n m ma) = unlines $  [[(showColor (obteCasella (Coord nn mm) (Taulell n m ma))) | mm <- [1.. m]] | nn <- [1..n]] ++ [concat [(show i) | i <- [1 .. m]]]                            
 
 -- t = Taulell 6 7 (Map.fromList [((5,0),Groc),((5,1),Groc),((5,2),Groc),((5,3),Vermell),((4,1),Vermell),((4,2),Vermell),((3,1),Vermell)])
 
