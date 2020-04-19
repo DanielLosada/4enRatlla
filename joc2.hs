@@ -45,6 +45,12 @@ filtraPerColor color (Taulell n m ma)
     |color == Groc = filter esGrocFilter (Map.toList ma)
     |color == Vermell = filter esVermellFilter (Map.toList ma)
     
+    {-
+filtraPerColor2 :: Color -> Taulell -> Taulell
+filtraPerColor2 color (Taulell n m ma) 
+    | color == Groc = (Taulell n m (Map.filter (== Groc) ma))
+    | color == Vermell = (Taulell n m (Map.filter (== Vermell) ma))
+    -}
     
 esGroc :: Coord -> Taulell -> Bool
 esGroc (Coord n m) (Taulell nn mm ma) 
@@ -105,7 +111,13 @@ cuatreVertical coord taulell color
     
 --Donat un color i un taulell diu si hi ha 4 en ratlla d'aquets color
 cuatreEnRatlla :: Color -> Taulell -> Bool
-cuatreEnRatlla = undefined
+cuatreEnRatlla color taulell = (cuatreEnRatllaCoord color taulell (obteCoord (filtraPerColor color taulell)))
+    where
+        cuatreEnRatllaCoord :: Color -> Taulell -> [Coord] -> Bool
+        cuatreEnRatllaCoord _ _ [] = False
+        cuatreEnRatllaCoord color taulell (x:xs) = (cuatreVertical x taulell color) || (cuatreHoritzontal x taulell color) || (cuatreEnRatllaCoord color taulell xs)
+            
+    
 
 
 -- t = Taulell 6 7 (Map.fromList [((6,1),Groc),((6,2),Groc),((6,3),Groc),((6,4),Vermell),((5,2),Vermell),((5,3),Vermell),((4,2),Vermell)])

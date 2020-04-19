@@ -19,27 +19,28 @@ instance Show Taulell where
                              nn <- [0 .. n-1]] | mm <- [0 .. m-1]]    ]
                              -}
                             
-                            
-                            
-isGroc :: ((Int,Int),Color) -> Bool
-isGroc ((ia,ib),c)
+                        
+                        
+--filtra els d'un color concret en la forma ((Int,Int),Color)
+esGrocFilter :: ((Int,Int),Color) -> Bool
+esGrocFilter ((ia,ib),c)
     |c == Groc = True
     |otherwise = False
     
-isVermell :: ((Int,Int),Color) -> Bool
-isVermell ((ia,ib),c)
+esVermellFilter :: ((Int,Int),Color) -> Bool
+esVermellFilter ((ia,ib),c)
     |c == Vermell = True
     |otherwise = False
     
+
 obteCoord :: [((Int,Int),Color)] -> [Coord]
 obteCoord [] = []
 obteCoord (((ia,ib),c):xs) = [(Coord ia ib)] ++ (obteCoord xs)
---onteCoord (((ia,ib),c):xs) = (Coord ia ib) ++ (obteCoord xs)
 
 filtraPerColor :: Color -> Taulell -> [((Int,Int),Color)]
 filtraPerColor color (Taulell n m ma)
-    |color == Groc = filter isGroc (Map.toList ma)
-    |color == Vermell = filter isVermell (Map.toList ma)
+    |color == Groc = filter esGrocFilter (Map.toList ma)
+    |color == Vermell = filter esVermellFilter (Map.toList ma)
                         
 filtraPerColor2 :: Color -> Taulell -> Taulell
 filtraPerColor2 color (Taulell n m ma) 
