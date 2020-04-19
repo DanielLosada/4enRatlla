@@ -200,6 +200,13 @@ insertaPeca (Coord n m) c (Taulell nn mm t) = (Taulell nn mm (Map.insert (n,m) c
 inicialitzaTaulell :: Int -> Int -> Taulell
 inicialitzaTaulell n m = (Taulell n m Map.empty)
 
+detectaGuanyador :: Taulell -> Maybe Color
+detectaGuanyador taulell
+    |(cuatreEnRatlla Groc taulell) = Just Groc
+    |(cuatreEnRatlla Vermell taulell) = Just Vermell
+    |otherwise = Nothing
+
+
 {-
 showPeca :: Peca -> Char
 showPeca Nothing = ' '
