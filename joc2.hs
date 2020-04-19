@@ -23,6 +23,29 @@ instance Show Taulell where
     show (Taulell n m ma) = unlines $  [[(showColor (obteCasella (Coord nn mm) (Taulell n m ma))) | mm <- [1.. m]] | nn <- [1..n]] ++ [concat [(show i) | i <- [1 .. m]]]                            
 
 
+--filtra els d'un color concret en la forma ((Int,Int),Color)
+esGrocFilter :: ((Int,Int),Color) -> Bool
+esGrocFilter ((ia,ib),c)
+    |c == Groc = True
+    |otherwise = False
+    
+esVermellFilter :: ((Int,Int),Color) -> Bool
+esVermellFilter ((ia,ib),c)
+    |c == Vermell = True
+    |otherwise = False
+    
+--Separa la key i el value per obtenir una llista de Coordenades
+obteCoord :: [((Int,Int),Color)] -> [Coord]
+obteCoord [] = []
+obteCoord (((ia,ib),c):xs) = [(Coord ia ib)] ++ (obteCoord xs)
+
+--obte els elements d'un mateix color d'un taulell
+filtraPerColor :: Color -> Taulell -> [((Int,Int),Color)]
+filtraPerColor color (Taulell n m ma)
+    |color == Groc = filter esGrocFilter (Map.toList ma)
+    |color == Vermell = filter esVermellFilter (Map.toList ma)
+    
+    
 esGroc :: Coord -> Taulell -> Bool
 esGroc (Coord n m) (Taulell nn mm ma) 
     |Map.lookup (n,m) ma == Just Groc = True
@@ -75,7 +98,8 @@ cuatreVertical coord taulell color
     |(cuatreVerticalDalt coord taulell color 0) = True
     |(cuatreVerticalBaix coord taulell color 0) = True
     |otherwise = False
-    
+
+
 --llistaGrocs :: Taulell -> [Coord]
 --llistaGrocs (Taulell n m ma) = unlines $ [[(Coord nn mm) | mm <- [1.. m]] | nn <- [1..n], esGroc((Coord nn mm) (Taulell n m ma))]
     
