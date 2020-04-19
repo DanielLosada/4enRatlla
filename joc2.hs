@@ -8,7 +8,7 @@ data Taulell = Taulell
     , casella :: Map (Int, Int) Color
     }
     
-data Coord = Coord Int Int
+data Coord = Coord Int Int deriving(Show)
 
 data Color = Groc | Vermell deriving(Show, Eq)
 
@@ -164,9 +164,28 @@ cuatreEnRatlla color taulell = (cuatreEnRatllaCoord color taulell (obteCoord (fi
         cuatreEnRatllaCoord _ _ [] = False
         cuatreEnRatllaCoord color taulell (x:xs) = (cuatreVerticalHoritzontalDiagonal x taulell color) || (cuatreEnRatllaCoord color taulell xs)
             
-    
 
+--retorna la coordenada a la que cauria una peça al ser llençada per una columna, pot retornar un valor fora del taulell en cas que una columna estigui plena o s'introdueixi una columna inexistent, aixi que s'haura de comprovar quan es fasi una crida
+posicioFinal :: Int -> Taulell -> Coord
+posicioFinal col (Taulell n m ma) = (posicioFinal2 col (Taulell n m ma) ((obteCoord ((filtraPerColor Groc (Taulell n m ma))++(filtraPerColor Vermell (Taulell n m ma))))))
+    where
+        posicioFinal2 :: Int -> Taulell -> [Coord] -> Coord
+        posicioFinal2 col (Taulell n m ma) coord = 
+            if [x | (Coord x y) <- coord, y == col] == [] then
+                (Coord n col) 
+            else
+               (Coord ((minimum [x | (Coord x y) <- coord, y == col])-1) col)
 
+ficaFitxa :: Int -> Color -> Taulell -> Taulell
+ficaFitxa col color taulell = (insertaPeca (posicioFinal col taulell) color taulell)
+  {-            
+ficaFitxa :: Int -> Taulell -> Taulell
+ficaFitxa col taulell = (ficaFitxaCoord col taulell coord)
+    where
+        ficaFitxaCoord :: Int -> Taulell -> Coord -> Taulell
+        ficaFitxaCoord col (Taulell n m ma) (Coord x y)
+        -}
+        
 -- t = Taulell 6 7 (Map.fromList [((6,1),Groc),((6,2),Groc),((6,3),Groc),((6,4),Vermell),((5,2),Vermell),((5,3),Vermell),((4,2),Vermell)])
     
 --consulta al taulell si existeix una peça a les coordenades especificades, retorna nothing si no hi ha res o Just Peca
@@ -190,6 +209,7 @@ readPeca :: Char -> Peca
 readPeca ' ' = Nothing
 readPeca c = Just (readColor c)
 -}
+
 
 showColor :: Maybe Color -> Char
 showColor Nothing = ' '
@@ -226,4 +246,6 @@ main = do
     linee <- getLine
     let m = (read linee::Int)
     putStrLn("Es creará un taulell de " ++ line ++ " per " ++ linee)
+    putStrLn(show (inicialitzaTaulell n m))
+    
     
