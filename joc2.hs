@@ -1,6 +1,6 @@
 import Data.Map.Strict (Map)
 import qualified Data.Map as Map
-
+import System.Random
 
 data Taulell = Taulell
     { n :: Int
@@ -63,6 +63,42 @@ esVermell (Coord n m) (Taulell nn mm ma)
     |otherwise = False
     
     
+cuatreDiagonalEsquerraDalt :: Coord -> Taulell -> Color -> Int -> Bool
+cuatreDiagonalEsquerraDalt (Coord x y) (Taulell n m ma) color count
+    |count > 3 = True
+    |x < 1 || y < 1 || x > n || y > m = False 
+    |Map.lookup (x,y) ma /= (Just color) = False
+    |Map.lookup (x,y) ma == (Just color) = (cuatreDiagonalEsquerraDalt (Coord (x-1) (y-1)) (Taulell n m ma) color (count+1))
+
+cuatreDiagonalEsquerraBaix :: Coord -> Taulell -> Color -> Int -> Bool
+cuatreDiagonalEsquerraBaix (Coord x y) (Taulell n m ma) color count
+    |count > 3 = True
+    |x < 1 || y < 1 || x > n || y > m = False 
+    |Map.lookup (x,y) ma /= (Just color) = False
+    |Map.lookup (x,y) ma == (Just color) = (cuatreDiagonalEsquerraBaix (Coord (x+1) (y-1)) (Taulell n m ma) color (count+1))
+
+cuatreDiagonalDretaDalt :: Coord -> Taulell -> Color -> Int -> Bool
+cuatreDiagonalDretaDalt (Coord x y) (Taulell n m ma) color count
+    |count > 3 = True
+    |x < 1 || y < 1 || x > n || y > m = False 
+    |Map.lookup (x,y) ma /= (Just color) = False
+    |Map.lookup (x,y) ma == (Just color) = (cuatreDiagonalDretaDalt (Coord (x-1) (y+1)) (Taulell n m ma) color (count+1))
+
+cuatreDiagonalDretaBaix :: Coord -> Taulell -> Color -> Int -> Bool
+cuatreDiagonalDretaBaix (Coord x y) (Taulell n m ma) color count
+    |count > 3 = True
+    |x < 1 || y < 1 || x > n || y > m = False 
+    |Map.lookup (x,y) ma /= (Just color) = False
+    |Map.lookup (x,y) ma == (Just color) = (cuatreDiagonalDretaBaix (Coord (x+1) (y+1)) (Taulell n m ma) color (count+1))
+
+
+cuatreDiagonal :: Coord -> Taulell -> Color -> Bool
+cuatreDiagonal coord taulell color
+    |(cuatreDiagonalEsquerraDalt coord taulell color 0) = True
+    |(cuatreDiagonalEsquerraBaix coord taulell color 0) = True
+    |(cuatreDiagonalDretaDalt coord taulell color 0) = True
+    |(cuatreDiagonalDretaBaix coord taulell color 0) = True
+    |otherwise = False
     
 cuatreHoritzontalEsquerra :: Coord -> Taulell -> Color -> Int -> Bool
 cuatreHoritzontalEsquerra (Coord x y) (Taulell n m ma) color count
@@ -105,7 +141,18 @@ cuatreVertical coord taulell color
     |(cuatreVerticalBaix coord taulell color 0) = True
     |otherwise = False
 
-
+cuatreVerticalHoritzontalDiagonal :: Coord -> Taulell -> Color -> Bool
+cuatreVerticalHoritzontalDiagonal coord taulell color
+    |(cuatreVerticalDalt coord taulell color 0) = True
+    |(cuatreVerticalBaix coord taulell color 0) = True
+    |(cuatreHoritzontalEsquerra coord taulell color 0) = True
+    |(cuatreHoritzontalDreta coord taulell color 0) = True
+    |(cuatreDiagonalEsquerraDalt coord taulell color 0) = True
+    |(cuatreDiagonalEsquerraBaix coord taulell color 0) = True
+    |(cuatreDiagonalDretaDalt coord taulell color 0) = True
+    |(cuatreDiagonalDretaBaix coord taulell color 0) = True
+    |otherwise = False
+    
 --llistaGrocs :: Taulell -> [Coord]
 --llistaGrocs (Taulell n m ma) = unlines $ [[(Coord nn mm) | mm <- [1.. m]] | nn <- [1..n], esGroc((Coord nn mm) (Taulell n m ma))]
     
@@ -115,7 +162,7 @@ cuatreEnRatlla color taulell = (cuatreEnRatllaCoord color taulell (obteCoord (fi
     where
         cuatreEnRatllaCoord :: Color -> Taulell -> [Coord] -> Bool
         cuatreEnRatllaCoord _ _ [] = False
-        cuatreEnRatllaCoord color taulell (x:xs) = (cuatreVertical x taulell color) || (cuatreHoritzontal x taulell color) || (cuatreEnRatllaCoord color taulell xs)
+        cuatreEnRatllaCoord color taulell (x:xs) = (cuatreVerticalHoritzontalDiagonal x taulell color) || (cuatreEnRatllaCoord color taulell xs)
             
     
 
@@ -157,3 +204,26 @@ readColor 'G' = (Just Groc)
 readColor 'V' = (Just Vermell)
 readColor ' ' = Nothing
 
+main :: IO ()
+
+{-
+main = do
+    putStrLn("Defineix la mida del taulell n*m")
+    putStrLn("Introdueix n i m separades per un espai: ")
+    line <- getLine
+    putStrLn(line)
+    do a <- inicialitzaTaulell (words line)
+    in
+    
+    -}
+    
+main = do
+    putStrLn("Defineix la mida del taulell N*M")
+    putStrLn("Introdueix N : ")
+    line <- getLine
+    let n = (read line::Int)
+    putStrLn("Introdueix M : ")
+    linee <- getLine
+    let m = (read linee::Int)
+    putStrLn("Es creará un taulell de " ++ line ++ " per " ++ linee)
+    
