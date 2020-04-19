@@ -1,6 +1,8 @@
 import Data.Map.Strict (Map)
 import qualified Data.Map as Map
 import System.Random
+import Control.Monad
+
 
 data Taulell = Taulell
     { n :: Int
@@ -11,6 +13,8 @@ data Taulell = Taulell
 data Coord = Coord Int Int deriving(Show)
 
 data Color = Groc | Vermell deriving(Show, Eq)
+
+data Estrategia = Random | Greedy | Smart deriving(Eq)
 
 {-
 instance Show Taulell where
@@ -231,7 +235,20 @@ readColor 'G' = (Just Groc)
 readColor 'V' = (Just Vermell)
 readColor ' ' = Nothing
 
-main :: IO ()
+
+
+--IA--
+--Random
+randInt :: Int -> Int -> IO Int
+-- randInt low high is an IO action that returns a
+-- pseudo-random integer between low and high (both included).
+
+randInt low high = do
+    random <- randomIO :: IO Int
+    let result = low + random `mod` (high - low + 1)
+    return result
+    
+
 
 {-
 main = do
@@ -243,9 +260,49 @@ main = do
     in
     
     -}
+    {- main = forever $ putStrLn "do something" -}
+quinaEstrategia :: Int -> Estrategia
+quinaEstrategia ia
+    |ia == 1 = Random
+    |ia == 2 = Greedy
+    |otherwise = Smart
     
+iaGestio :: Estrategia -> Taulell -> IO()
+iaGestio ia (Taulell n m ma) = do
+    if ia == Random then do
+        r1 <- (randInt 1 m)
+        let taulellAct = (ficaFitxa r1 Groc (Taulell n m ma))
+        putStrLn(show taulellAct)
+        if ((detectaGuanyador taulellAct) == (Just Groc)) then do
+            putStrLn("HAS PERDUT!  :(")
+            return()
+        else
+            (humaGestio ia taulellAct)
+        
+    else if ia == Greedy then
+        putStrLn("2")
+    else
+        putStrLn("3")
+
+humaGestio :: Estrategia -> Taulell -> IO()
+humaGestio ia taulell = do
+        putStrLn("Tria la columna on vols deixar la peça: ")
+        x <- getLine
+        let col = (read x::Int)
+        --ficaFitxa :: Int -> Color -> Taulell -> Taulell
+        let taulellAct = (ficaFitxa col Vermell taulell)
+        putStrLn(show taulellAct)
+        --detectaGuanyador :: Taulell -> Maybe Color
+        if ((detectaGuanyador taulellAct) == (Just Vermell)) then do
+            putStrLn("HAS GUANYAT!")
+            return()
+        else
+            (iaGestio ia taulellAct)
+        
+        
+main :: IO ()
 main = do
-    putStrLn("Defineix la mida del taulell N*M")
+    putStrLn("Defineix la mida del taulell N*M.")
     putStrLn("Introdueix N : ")
     line <- getLine
     let n = (read line::Int)
@@ -254,5 +311,27 @@ main = do
     let m = (read linee::Int)
     putStrLn("Es creará un taulell de " ++ line ++ " per " ++ linee)
     putStrLn(show (inicialitzaTaulell n m))
-    
-    
+    let taulell = inicialitzaTaulell n m
+    putStrLn("Escull la dificultat de la IA: Contesta 1, 2, o 3")
+    putStrLn("  1. Random")
+    putStrLn("  2. Greedy")
+    putStrLn("  3. Smart")
+    line <- getLine
+    putStrLn("Has escollit la dificultat " ++ line)
+    let ia = (quinaEstrategia (read line::Int))
+    putStrLn("Vols començar tu? Contesta si o no.")
+    si <- getLine
+    let taulellAct = taulell
+    if si == "si" then do
+        (humaGestio ia taulell)
+        
+    else
+        (iaGestio ia taulell)
+        {-
+        if ia == 1 then do
+            r1 <- randInt 1 m
+            let taulellAct = (ficaFitxa r1 Groc taulell)
+            putStrLn(show taulellAct)
+        else
+            return () 
+            -}
