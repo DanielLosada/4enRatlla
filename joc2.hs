@@ -247,7 +247,21 @@ randInt low high = do
     random <- randomIO :: IO Int
     let result = low + random `mod` (high - low + 1)
     return result
-    
+
+--Greedy
+
+--retorna les coord a les que s'ha de tirar per evitar el 4 en ralla de l'enemic si hi ha
+tallar4enRalla :: Taulell -> Maybe Coord
+tallar4enRalla (Taulell n m ma) = tallar4enRalla2 (Taulell n m ma) [(posicioFinal col (Taulell n m ma)) | col <- [1 .. m]]
+    where 
+        tallar4enRalla2 :: Taulell -> [Coord] ->Maybe Coord
+        tallar4enRalla2 _ [] = Nothing
+        tallar4enRalla2 (Taulell n m ma) ((Coord x y):xs) 
+            |(detectaGuanyador  (ficaFitxa y Vermell (Taulell n m ma)) == (Just Vermell)) = (Just (Coord x y))
+            |otherwise = (tallar4enRalla2 (Taulell n m ma) xs)
+            
+
+            --ficaFitxa :: Int -> Color -> Taulell -> Taulell
 
 
 {-
@@ -261,6 +275,8 @@ main = do
     
     -}
     {- main = forever $ putStrLn "do something" -}
+
+    
 quinaEstrategia :: Int -> Estrategia
 quinaEstrategia ia
     |ia == 1 = Random
