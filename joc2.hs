@@ -67,94 +67,94 @@ esVermell (Coord n m) (Taulell nn mm ma)
     |otherwise = False
     
     
-cuatreDiagonalEsquerraDalt :: Coord -> Taulell -> Color -> Int -> Bool
-cuatreDiagonalEsquerraDalt (Coord x y) (Taulell n m ma) color count
-    |count > 3 = True
+cuatreDiagonalEsquerraDalt :: Int -> Coord -> Taulell -> Color -> Int -> Bool
+cuatreDiagonalEsquerraDalt num (Coord x y) (Taulell n m ma) color count
+    |count >= num = True
     |x < 1 || y < 1 || x > n || y > m = False 
     |Map.lookup (x,y) ma /= (Just color) = False
-    |Map.lookup (x,y) ma == (Just color) = (cuatreDiagonalEsquerraDalt (Coord (x-1) (y-1)) (Taulell n m ma) color (count+1))
+    |Map.lookup (x,y) ma == (Just color) = (cuatreDiagonalEsquerraDalt num (Coord (x-1) (y-1)) (Taulell n m ma) color (count+1))
 
-cuatreDiagonalEsquerraBaix :: Coord -> Taulell -> Color -> Int -> Bool
-cuatreDiagonalEsquerraBaix (Coord x y) (Taulell n m ma) color count
-    |count > 3 = True
+cuatreDiagonalEsquerraBaix :: Int -> Coord -> Taulell -> Color -> Int -> Bool
+cuatreDiagonalEsquerraBaix num (Coord x y) (Taulell n m ma) color count
+    |count >= num = True
     |x < 1 || y < 1 || x > n || y > m = False 
     |Map.lookup (x,y) ma /= (Just color) = False
-    |Map.lookup (x,y) ma == (Just color) = (cuatreDiagonalEsquerraBaix (Coord (x+1) (y-1)) (Taulell n m ma) color (count+1))
+    |Map.lookup (x,y) ma == (Just color) = (cuatreDiagonalEsquerraBaix num (Coord (x+1) (y-1)) (Taulell n m ma) color (count+1))
 
-cuatreDiagonalDretaDalt :: Coord -> Taulell -> Color -> Int -> Bool
-cuatreDiagonalDretaDalt (Coord x y) (Taulell n m ma) color count
-    |count > 3 = True
+cuatreDiagonalDretaDalt :: Int ->Coord -> Taulell -> Color -> Int -> Bool
+cuatreDiagonalDretaDalt num (Coord x y) (Taulell n m ma) color count
+    |count >= num = True
     |x < 1 || y < 1 || x > n || y > m = False 
     |Map.lookup (x,y) ma /= (Just color) = False
-    |Map.lookup (x,y) ma == (Just color) = (cuatreDiagonalDretaDalt (Coord (x-1) (y+1)) (Taulell n m ma) color (count+1))
+    |Map.lookup (x,y) ma == (Just color) = (cuatreDiagonalDretaDalt num (Coord (x-1) (y+1)) (Taulell n m ma) color (count+1))
 
-cuatreDiagonalDretaBaix :: Coord -> Taulell -> Color -> Int -> Bool
-cuatreDiagonalDretaBaix (Coord x y) (Taulell n m ma) color count
-    |count > 3 = True
+cuatreDiagonalDretaBaix :: Int -> Coord -> Taulell -> Color -> Int -> Bool
+cuatreDiagonalDretaBaix num (Coord x y) (Taulell n m ma) color count
+    |count >= num = True
     |x < 1 || y < 1 || x > n || y > m = False 
     |Map.lookup (x,y) ma /= (Just color) = False
-    |Map.lookup (x,y) ma == (Just color) = (cuatreDiagonalDretaBaix (Coord (x+1) (y+1)) (Taulell n m ma) color (count+1))
+    |Map.lookup (x,y) ma == (Just color) = (cuatreDiagonalDretaBaix num (Coord (x+1) (y+1)) (Taulell n m ma) color (count+1))
 
 
-cuatreDiagonal :: Coord -> Taulell -> Color -> Bool
-cuatreDiagonal coord taulell color
-    |(cuatreDiagonalEsquerraDalt coord taulell color 0) = True
-    |(cuatreDiagonalEsquerraBaix coord taulell color 0) = True
-    |(cuatreDiagonalDretaDalt coord taulell color 0) = True
-    |(cuatreDiagonalDretaBaix coord taulell color 0) = True
+cuatreDiagonal :: Int -> Coord -> Taulell -> Color -> Bool
+cuatreDiagonal num coord taulell color
+    |(cuatreDiagonalEsquerraDalt num coord taulell color 0) = True
+    |(cuatreDiagonalEsquerraBaix num coord taulell color 0) = True
+    |(cuatreDiagonalDretaDalt num coord taulell color 0) = True
+    |(cuatreDiagonalDretaBaix num coord taulell color 0) = True
     |otherwise = False
     
-cuatreHoritzontalEsquerra :: Coord -> Taulell -> Color -> Int -> Bool
-cuatreHoritzontalEsquerra (Coord x y) (Taulell n m ma) color count
-    |count > 3 = True
+cuatreHoritzontalEsquerra :: Int ->Coord -> Taulell -> Color -> Int -> Bool
+cuatreHoritzontalEsquerra num (Coord x y) (Taulell n m ma) color count
+    |count >= num = True
     |x < 1 || y < 1 || x > n || y > m = False 
     |Map.lookup (x,y) ma /= (Just color) = False
-    |Map.lookup (x,y) ma == (Just color) = (cuatreHoritzontalEsquerra (Coord x (y-1)) (Taulell n m ma) color (count+1))
+    |Map.lookup (x,y) ma == (Just color) = (cuatreHoritzontalEsquerra num (Coord x (y-1)) (Taulell n m ma) color (count+1))
 
-cuatreHoritzontalDreta :: Coord -> Taulell -> Color -> Int -> Bool
-cuatreHoritzontalDreta (Coord x y) (Taulell n m ma) color count
-    |count > 3 = True
+cuatreHoritzontalDreta :: Int -> Coord -> Taulell -> Color -> Int -> Bool
+cuatreHoritzontalDreta num (Coord x y) (Taulell n m ma) color count
+    |count >= num = True
     |x < 1 || y < 1 || x > n || y > m = False 
     |Map.lookup (x,y) ma /= (Just color) = False
-    |Map.lookup (x,y) ma == (Just color) = (cuatreHoritzontalDreta (Coord x (y+1)) (Taulell n m ma) color (count+1))
+    |Map.lookup (x,y) ma == (Just color) = (cuatreHoritzontalDreta num (Coord x (y+1)) (Taulell n m ma) color (count+1))
     
     
-cuatreHoritzontal :: Coord -> Taulell -> Color -> Bool
-cuatreHoritzontal coord taulell color
-    |(cuatreHoritzontalEsquerra coord taulell color 0) = True
-    |(cuatreHoritzontalDreta coord taulell color 0) = True
+cuatreHoritzontal :: Int -> Coord -> Taulell -> Color -> Bool
+cuatreHoritzontal num coord taulell color
+    |(cuatreHoritzontalEsquerra num coord taulell color 0) = True
+    |(cuatreHoritzontalDreta num coord taulell color 0) = True
     |otherwise = False
 
-cuatreVerticalDalt ::  Coord -> Taulell -> Color -> Int -> Bool
-cuatreVerticalDalt (Coord x y) (Taulell n m ma) color count
-    |count > 3 = True
+cuatreVerticalDalt :: Int -> Coord -> Taulell -> Color -> Int -> Bool
+cuatreVerticalDalt num (Coord x y) (Taulell n m ma) color count
+    |count >= num = True
     |x < 1 || y < 1 || x > n || y > m = False 
     |Map.lookup (x,y) ma /= (Just color) = False
-    |Map.lookup (x,y) ma == (Just color) = (cuatreVerticalDalt (Coord (x+1) y) (Taulell n m ma) color (count+1))
+    |Map.lookup (x,y) ma == (Just color) = (cuatreVerticalDalt num (Coord (x+1) y) (Taulell n m ma) color (count+1))
     
-cuatreVerticalBaix ::  Coord -> Taulell -> Color -> Int -> Bool
-cuatreVerticalBaix (Coord x y) (Taulell n m ma) color count
-    |count > 3 = True
+cuatreVerticalBaix :: Int -> Coord -> Taulell -> Color -> Int -> Bool
+cuatreVerticalBaix num (Coord x y) (Taulell n m ma) color count
+    |count >= num = True
     |x < 1 || y < 1 || x > n || y > m = False 
     |Map.lookup (x,y) ma /= (Just color) = False
-    |Map.lookup (x,y) ma == (Just color) = (cuatreVerticalBaix (Coord (x-1) y) (Taulell n m ma) color (count+1))
+    |Map.lookup (x,y) ma == (Just color) = (cuatreVerticalBaix num (Coord (x-1) y) (Taulell n m ma) color (count+1))
 
-cuatreVertical :: Coord -> Taulell -> Color -> Bool
-cuatreVertical coord taulell color
-    |(cuatreVerticalDalt coord taulell color 0) = True
-    |(cuatreVerticalBaix coord taulell color 0) = True
+cuatreVertical :: Int -> Coord -> Taulell -> Color -> Bool
+cuatreVertical num coord taulell color
+    |(cuatreVerticalDalt num coord taulell color 0) = True
+    |(cuatreVerticalBaix num coord taulell color 0) = True
     |otherwise = False
 
-cuatreVerticalHoritzontalDiagonal :: Coord -> Taulell -> Color -> Bool
-cuatreVerticalHoritzontalDiagonal coord taulell color
-    |(cuatreVerticalDalt coord taulell color 0) = True
-    |(cuatreVerticalBaix coord taulell color 0) = True
-    |(cuatreHoritzontalEsquerra coord taulell color 0) = True
-    |(cuatreHoritzontalDreta coord taulell color 0) = True
-    |(cuatreDiagonalEsquerraDalt coord taulell color 0) = True
-    |(cuatreDiagonalEsquerraBaix coord taulell color 0) = True
-    |(cuatreDiagonalDretaDalt coord taulell color 0) = True
-    |(cuatreDiagonalDretaBaix coord taulell color 0) = True
+cuatreVerticalHoritzontalDiagonal :: Int -> Coord -> Taulell -> Color -> Bool
+cuatreVerticalHoritzontalDiagonal num coord taulell color
+    |(cuatreVerticalDalt num coord taulell color 0) = True
+    |(cuatreVerticalBaix num coord taulell color 0) = True
+    |(cuatreHoritzontalEsquerra num coord taulell color 0) = True
+    |(cuatreHoritzontalDreta num coord taulell color 0) = True
+    |(cuatreDiagonalEsquerraDalt num coord taulell color 0) = True
+    |(cuatreDiagonalEsquerraBaix num coord taulell color 0) = True
+    |(cuatreDiagonalDretaDalt num coord taulell color 0) = True
+    |(cuatreDiagonalDretaBaix num coord taulell color 0) = True
     |otherwise = False
     
 --llistaGrocs :: Taulell -> [Coord]
@@ -162,11 +162,11 @@ cuatreVerticalHoritzontalDiagonal coord taulell color
     
 --Donat un color i un taulell diu si hi ha 4 en ratlla d'aquets color
 cuatreEnRatlla :: Color -> Taulell -> Bool
-cuatreEnRatlla color taulell = (cuatreEnRatllaCoord color taulell (obteCoord (filtraPerColor color taulell)))
+cuatreEnRatlla color taulell = (cuatreEnRatllaCoord 4 color taulell (obteCoord (filtraPerColor color taulell)))
     where
-        cuatreEnRatllaCoord :: Color -> Taulell -> [Coord] -> Bool
-        cuatreEnRatllaCoord _ _ [] = False
-        cuatreEnRatllaCoord color taulell (x:xs) = (cuatreVerticalHoritzontalDiagonal x taulell color) || (cuatreEnRatllaCoord color taulell xs)
+        cuatreEnRatllaCoord :: Int -> Color -> Taulell -> [Coord] -> Bool
+        cuatreEnRatllaCoord _ _ _ [] = False
+        cuatreEnRatllaCoord num color taulell (x:xs) = (cuatreVerticalHoritzontalDiagonal num x taulell color) || (cuatreEnRatllaCoord num color taulell xs)
             
 
 --retorna la coordenada a la que cauria una peça al ser llençada per una columna, pot retornar un valor fora del taulell en cas que una columna estigui plena o s'introdueixi una columna inexistent, aixi que s'haura de comprovar quan es fasi una crida
