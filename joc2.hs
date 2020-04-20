@@ -251,13 +251,13 @@ randInt low high = do
 --Greedy
 
 --retorna les coord a les que s'ha de tirar per evitar el 4 en ralla de l'enemic si hi ha
-tallar4enRalla :: Taulell -> Maybe Coord
+tallar4enRalla :: Taulell -> Maybe Int
 tallar4enRalla (Taulell n m ma) = tallar4enRalla2 (Taulell n m ma) [(posicioFinal col (Taulell n m ma)) | col <- [1 .. m]]
     where 
-        tallar4enRalla2 :: Taulell -> [Coord] ->Maybe Coord
+        tallar4enRalla2 :: Taulell -> [Coord] ->Maybe Int
         tallar4enRalla2 _ [] = Nothing
         tallar4enRalla2 (Taulell n m ma) ((Coord x y):xs) 
-            |(detectaGuanyador  (ficaFitxa y Vermell (Taulell n m ma)) == (Just Vermell)) = (Just (Coord x y))
+            |(detectaGuanyador  (ficaFitxa y Vermell (Taulell n m ma)) == (Just Vermell)) = (Just y)
             |otherwise = (tallar4enRalla2 (Taulell n m ma) xs)
             
 contaFilaMesLlarga :: Taulell -> Int 
@@ -268,7 +268,8 @@ contaFilaMesLlarga taulell = (contaFilaMesLlarga2 taulell 1)
             |(cuatreEnRatlla num Groc taulell) = (contaFilaMesLlarga2 taulell (num+1))
             |otherwise = (num-1)
             
---cuatreEnRatlla :: Int -> Color -> Taulell -> Bool
+--retorna un [] amb el les coordenades que em permeten posar el maxim nombre de peces seguides, amb t = Taulell 6 7 (Map.fromList [((6,1),Groc),((6,2),Groc),((6,3),Groc),((6,4),Vermell),((5,2),Vermell),((5,3),Vermell),((4,2),Vermell),((5,1),Vermell),((4,1),Vermell),((3,1),Groc)]) no funciona ja que conta que el maxim nombre de peces es 3 i al posar una més no pot superarho
+
 maximPecesIa :: Taulell -> [Coord]
 maximPecesIa (Taulell n m ma) = maximPecesIa2 (Taulell n m ma) (contaFilaMesLlarga (Taulell n m ma))  [(posicioFinal col (Taulell n m ma)) | col <- [1 .. m]]
     where
@@ -278,7 +279,20 @@ maximPecesIa (Taulell n m ma) = maximPecesIa2 (Taulell n m ma) (contaFilaMesLlar
             |((contaFilaMesLlarga (ficaFitxa y Groc (Taulell n m ma))) > maxi) =[(Coord x y)] ++ (maximPecesIa2 (Taulell n m ma) (contaFilaMesLlarga (ficaFitxa y Vermell (Taulell n m ma)))  xs)
             |otherwise = (maximPecesIa2 (Taulell n m ma) maxi xs)
 
+--escullInt :: Maybe Int -> Int 
+--escollInt (Just x) = x
 
+isJust :: Maybe a -> Bool
+isJust (Just a) = True
+isJust Nothing = False
+
+
+
+greedy :: Taulell -> Int
+greedy taulell 
+    |(isJust (tallar4enRalla taulell)) = (\(Just i)->i) $ (tallar4enRalla taulell)
+    |otherwise = 
+    
 {-
 main = do
     putStrLn("Defineix la mida del taulell n*m")
