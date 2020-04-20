@@ -161,8 +161,8 @@ cuatreVerticalHoritzontalDiagonal num coord taulell color
 --llistaGrocs (Taulell n m ma) = unlines $ [[(Coord nn mm) | mm <- [1.. m]] | nn <- [1..n], esGroc((Coord nn mm) (Taulell n m ma))]
     
 --Donat un color i un taulell diu si hi ha 4 en ratlla d'aquets color
-cuatreEnRatlla :: Color -> Taulell -> Bool
-cuatreEnRatlla color taulell = (cuatreEnRatllaCoord 4 color taulell (obteCoord (filtraPerColor color taulell)))
+cuatreEnRatlla :: Int -> Color -> Taulell -> Bool
+cuatreEnRatlla num color taulell = (cuatreEnRatllaCoord num color taulell (obteCoord (filtraPerColor color taulell)))
     where
         cuatreEnRatllaCoord :: Int -> Color -> Taulell -> [Coord] -> Bool
         cuatreEnRatllaCoord _ _ _ [] = False
@@ -206,8 +206,8 @@ inicialitzaTaulell n m = (Taulell n m Map.empty)
 
 detectaGuanyador :: Taulell -> Maybe Color
 detectaGuanyador taulell
-    |(cuatreEnRatlla Groc taulell) = Just Groc
-    |(cuatreEnRatlla Vermell taulell) = Just Vermell
+    |(cuatreEnRatlla 4 Groc taulell) = Just Groc
+    |(cuatreEnRatlla 4 Vermell taulell) = Just Vermell
     |otherwise = Nothing
 
 
@@ -260,8 +260,23 @@ tallar4enRalla (Taulell n m ma) = tallar4enRalla2 (Taulell n m ma) [(posicioFina
             |(detectaGuanyador  (ficaFitxa y Vermell (Taulell n m ma)) == (Just Vermell)) = (Just (Coord x y))
             |otherwise = (tallar4enRalla2 (Taulell n m ma) xs)
             
-
-            --ficaFitxa :: Int -> Color -> Taulell -> Taulell
+contaFilaMesLlarga :: Taulell -> Int 
+contaFilaMesLlarga taulell = (contaFilaMesLlarga2 taulell 1)
+    where
+        contaFilaMesLlarga2 :: Taulell -> Int ->  Int 
+        contaFilaMesLlarga2 taulell num
+            |(cuatreEnRatlla num Groc taulell) = (contaFilaMesLlarga2 taulell (num+1))
+            |otherwise = (num-1)
+            
+--cuatreEnRatlla :: Int -> Color -> Taulell -> Bool
+maximPecesIa :: Taulell -> [Coord]
+maximPecesIa (Taulell n m ma) = maximPecesIa2 (Taulell n m ma) (contaFilaMesLlarga (Taulell n m ma))  [(posicioFinal col (Taulell n m ma)) | col <- [1 .. m]]
+    where
+        maximPecesIa2 :: Taulell -> Int -> [Coord] -> [Coord]
+        maximPecesIa2 _ _ [] = []
+        maximPecesIa2 (Taulell n m ma) maxi ((Coord x y):xs) 
+            |((contaFilaMesLlarga (ficaFitxa y Groc (Taulell n m ma))) > maxi) =[(Coord x y)] ++ (maximPecesIa2 (Taulell n m ma) (contaFilaMesLlarga (ficaFitxa y Vermell (Taulell n m ma)))  xs)
+            |otherwise = (maximPecesIa2 (Taulell n m ma) maxi xs)
 
 
 {-
