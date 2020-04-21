@@ -270,13 +270,13 @@ contaFilaMesLlarga taulell = (contaFilaMesLlarga2 taulell 1)
             
 --retorna un [] amb el les coordenades que em permeten posar el maxim nombre de peces seguides, amb t = Taulell 6 7 (Map.fromList [((6,1),Groc),((6,2),Groc),((6,3),Groc),((6,4),Vermell),((5,2),Vermell),((5,3),Vermell),((4,2),Vermell),((5,1),Vermell),((4,1),Vermell),((3,1),Groc)]) no funciona ja que conta que el maxim nombre de peces es 3 i al posar una més no pot superarho
 
-maximPecesIa :: Taulell -> [Coord]
+maximPecesIa :: Taulell -> [Int]
 maximPecesIa (Taulell n m ma) = maximPecesIa2 (Taulell n m ma) (contaFilaMesLlarga (Taulell n m ma))  [(posicioFinal col (Taulell n m ma)) | col <- [1 .. m]]
     where
-        maximPecesIa2 :: Taulell -> Int -> [Coord] -> [Coord]
+        maximPecesIa2 :: Taulell -> Int -> [Coord] -> [Int]
         maximPecesIa2 _ _ [] = []
         maximPecesIa2 (Taulell n m ma) maxi ((Coord x y):xs) 
-            |((contaFilaMesLlarga (ficaFitxa y Groc (Taulell n m ma))) > maxi) =[(Coord x y)] ++ (maximPecesIa2 (Taulell n m ma) (contaFilaMesLlarga (ficaFitxa y Vermell (Taulell n m ma)))  xs)
+            |((contaFilaMesLlarga (ficaFitxa y Groc (Taulell n m ma))) > maxi) =[y] ++ (maximPecesIa2 (Taulell n m ma) (contaFilaMesLlarga (ficaFitxa y Vermell (Taulell n m ma)))  xs)
             |otherwise = (maximPecesIa2 (Taulell n m ma) maxi xs)
 
 --escullInt :: Maybe Int -> Int 
@@ -286,13 +286,16 @@ isJust :: Maybe a -> Bool
 isJust (Just a) = True
 isJust Nothing = False
 
+escullTirada :: Int -> [Int] -> Int
+escullTirada m [] = (m `div`2)
+escullTirada m xs =  head (take (m `div` 2) xs)
 
 
 greedy :: Taulell -> Int
-greedy taulell 
-    |(isJust (tallar4enRalla taulell)) = (\(Just i)->i) $ (tallar4enRalla taulell)
-    |otherwise = 
-    
+greedy (Taulell n m ma)
+    |(isJust (tallar4enRalla (Taulell n m ma))) = (\(Just i)->i) $ (tallar4enRalla (Taulell n m ma))
+    |otherwise = escullTirada m (maximPecesIa (Taulell n m ma))
+      
 {-
 main = do
     putStrLn("Defineix la mida del taulell n*m")
@@ -311,7 +314,12 @@ quinaEstrategia ia
     |ia == 1 = Random
     |ia == 2 = Greedy
     |otherwise = Smart
-    
+
+fesMoviment :: Estrategia -> Taulell -> Taulell
+fesMoviment x taulell
+    |x == Greedy = (ficaFitxa (greedy taulell) Groc taulell)
+    |otherwise = undefined
+
 iaGestio :: Estrategia -> Taulell -> IO()
 iaGestio ia (Taulell n m ma) = do
     if ia == Random then do
@@ -324,8 +332,14 @@ iaGestio ia (Taulell n m ma) = do
         else
             (humaGestio ia taulellAct)
         
-    else if ia == Greedy then
-        putStrLn("2")
+    else if ia == Greedy then do
+        let taulellAct = (fesMoviment Greedy (Taulell n m ma))
+        putStrLn(show taulellAct)
+        if ((detectaGuanyador taulellAct) == (Just Groc)) then do
+            putStrLn("HAS PERDUT!  :(")
+            return()
+        else
+            (humaGestio ia taulellAct)
     else
         putStrLn("3")
 
