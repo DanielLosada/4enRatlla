@@ -241,7 +241,8 @@ numEnRatllaY4VerticalHoritzontalDiagonal num (Coord x y) taulell color
     |(cuatreDiagonalEsquerraDalt num (Coord x y) taulell color 0) && (numEspaisDiagonalEsquerraDalt (4-num) (Coord (x-num) (y-num)) taulell  0)= True
     |(cuatreDiagonalDretaDalt num (Coord x y) taulell color 0) && (numEspaisDiagonalDretaDalt (4-num) (Coord (x-num) (y+num)) taulell  0) = True
     |otherwise = False    
-        
+    
+--comprova totes les posicions de fitxes del color per veure si hi ha una fila de num fitxes amb la que en un futur es pugui arribar a 4
 numEnRatllaY4 :: Int -> Color -> Taulell -> Bool
 numEnRatllaY4 num color taulell = (numEnRatllaY4Coord num color taulell (obteCoord (filtraPerColor color taulell)))
     where
@@ -343,9 +344,12 @@ tallar4enRalla (Taulell n m ma) = tallar4enRalla2 (Taulell n m ma) [(posicioFina
         tallar4enRalla2 (Taulell n m ma) ((Coord x y):xs) 
             |(detectaGuanyador  (ficaFitxa y Vermell (Taulell n m ma)) == (Just Vermell)) = (Just y)
             |otherwise = (tallar4enRalla2 (Taulell n m ma) xs)
-   
+
+
+--numEnRatllaY4 :: Int -> Color -> Taulell -> Bool
+        
 contaFilaMesLlarga :: Taulell -> Int 
-contaFilaMesLlarga taulell = maximum [num | num <- [1..4], (cuatreEnRatlla num Vermell taulell)]
+contaFilaMesLlarga taulell = maximum [num | num <- [1..4], (numEnRatllaY4 num Groc taulell)]
 
 {-
 contaFilaMesLlarga :: Taulell -> Int 
@@ -358,17 +362,24 @@ contaFilaMesLlarga taulell = (contaFilaMesLlarga2 taulell 1)
     
     -}
 --[num | num <- [1..4], (cuatreEnRatlla num Groc (Taulell n m ma))]
+
+
 --retorna un [] amb el les coordenades que em permeten posar el maxim nombre de peces seguides, amb num no funciona ja que conta que el maxim nombre de peces es 3 i al posar una més no pot superarho
 
 maximPecesIa :: Taulell -> [Int]
 maximPecesIa (Taulell n m ma) = maximPecesIa2 (Taulell n m ma) (contaFilaMesLlarga (Taulell n m ma))  [(posicioFinal col (Taulell n m ma)) | col <- [1 .. m]]
-    where
+    where --retorna totes les columnes [Int] a on si tirem una peça incrementara la linia de peces més llarga
         maximPecesIa2 :: Taulell -> Int -> [Coord] -> [Int]
         maximPecesIa2 _ _ [] = []
         maximPecesIa2 (Taulell n m ma) maxi ((Coord x y):xs) 
             |((contaFilaMesLlarga (ficaFitxa y Groc (Taulell n m ma))) > maxi) =[y] ++ (maximPecesIa2 (Taulell n m ma) (contaFilaMesLlarga (ficaFitxa y Vermell (Taulell n m ma)))  xs)
             |otherwise = (maximPecesIa2 (Taulell n m ma) maxi xs)
+{-
+maximPecesIa :: Taulell -> [Int]
+maximPecesIa (Taulell n m ma) = [y | y <- reverse [1..m], taux <- [(ficaFitxa y Groc (Taulell n m ma))], (contaFilaMesLlarga (Taulell n m ma)) < (contaFilaMesLlarga taux)]
 
+            -}
+      --  [y | y <- [1..m], taux <- [(ficaFitxa y Groc (Taulell n m ma))] , (contaFilaMesLlarga (Taulell n m ma)) < (contaFilaMesLlarga taux)]
 --escullInt :: Maybe Int -> Int 
 --escollInt (Just x) = x
 
