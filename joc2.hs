@@ -73,7 +73,8 @@ cuatreDiagonalEsquerraDalt num (Coord x y) (Taulell n m ma) color count
     |x < 1 || y < 1 || x > n || y > m = False 
     |Map.lookup (x,y) ma /= (Just color) = False
     |Map.lookup (x,y) ma == (Just color) = (cuatreDiagonalEsquerraDalt num (Coord (x-1) (y-1)) (Taulell n m ma) color (count+1))
-
+    
+    
 cuatreDiagonalEsquerraBaix :: Int -> Coord -> Taulell -> Color -> Int -> Bool
 cuatreDiagonalEsquerraBaix num (Coord x y) (Taulell n m ma) color count
     |count >= num = True
@@ -88,6 +89,20 @@ cuatreDiagonalDretaDalt num (Coord x y) (Taulell n m ma) color count
     |Map.lookup (x,y) ma /= (Just color) = False
     |Map.lookup (x,y) ma == (Just color) = (cuatreDiagonalDretaDalt num (Coord (x-1) (y+1)) (Taulell n m ma) color (count+1))
 
+numEspaisDiagonalEsquerraDalt :: Int -> Coord -> Taulell -> Int -> Bool
+numEspaisDiagonalEsquerraDalt num (Coord x y) (Taulell n m ma)  count
+    |count >= num = True
+    |x < 1 || y < 1 || x > n || y > m = False 
+    |Map.lookup (x,y) ma == Nothing = (numEspaisDiagonalEsquerraDalt num (Coord (x-1) (y-1)) (Taulell n m ma) (count+1))   
+    |Map.lookup (x,y) ma /= Nothing = False
+    
+numEspaisDiagonalDretaDalt :: Int -> Coord -> Taulell -> Int -> Bool
+numEspaisDiagonalDretaDalt num (Coord x y) (Taulell n m ma)  count
+    |count >= num = True
+    |x < 1 || y < 1 || x > n || y > m = False 
+    |Map.lookup (x,y) ma == Nothing = (numEspaisDiagonalDretaDalt num (Coord (x-1) (y+1)) (Taulell n m ma) (count+1))   
+    |Map.lookup (x,y) ma /= Nothing = False
+    
 cuatreDiagonalDretaBaix :: Int -> Coord -> Taulell -> Color -> Int -> Bool
 cuatreDiagonalDretaBaix num (Coord x y) (Taulell n m ma) color count
     |count >= num = True
@@ -110,34 +125,73 @@ cuatreHoritzontalEsquerra num (Coord x y) (Taulell n m ma) color count
     |x < 1 || y < 1 || x > n || y > m = False 
     |Map.lookup (x,y) ma /= (Just color) = False
     |Map.lookup (x,y) ma == (Just color) = (cuatreHoritzontalEsquerra num (Coord x (y-1)) (Taulell n m ma) color (count+1))
-
+    
 cuatreHoritzontalDreta :: Int -> Coord -> Taulell -> Color -> Int -> Bool
 cuatreHoritzontalDreta num (Coord x y) (Taulell n m ma) color count
     |count >= num = True
     |x < 1 || y < 1 || x > n || y > m = False 
     |Map.lookup (x,y) ma /= (Just color) = False
-    |Map.lookup (x,y) ma == (Just color) = (cuatreHoritzontalDreta num (Coord x (y+1)) (Taulell n m ma) color (count+1))
+    |Map.lookup (x,y) ma == (Just color) = (cuatreHoritzontalDreta num (Coord x (y+1)) (Taulell n m ma) color (count+1))    
     
+    
+numEspaisHoritzontalEsquerra :: Int -> Coord -> Taulell -> Int -> Bool
+numEspaisHoritzontalEsquerra num (Coord x y) (Taulell n m ma)  count
+    |count >= num = True
+    |x < 1 || y < 1 || x > n || y > m = False 
+    |Map.lookup (x,y) ma == Nothing = (numEspaisHoritzontalEsquerra num (Coord x (y-1)) (Taulell n m ma) (count+1))   
+    |Map.lookup (x,y) ma /= Nothing = False
+    
+
+
+numEspaisHoritzontalDreta :: Int -> Coord -> Taulell -> Int -> Bool
+numEspaisHoritzontalDreta num (Coord x y) (Taulell n m ma)  count
+    |count >= num = True
+    |x < 1 || y < 1 || x > n || y > m = False 
+    |Map.lookup (x,y) ma == Nothing = (numEspaisHoritzontalDreta num (Coord x (y+1)) (Taulell n m ma) (count+1))   
+    |Map.lookup (x,y) ma /= Nothing = False
     
 cuatreHoritzontal :: Int -> Coord -> Taulell -> Color -> Bool
 cuatreHoritzontal num coord taulell color
     |(cuatreHoritzontalEsquerra num coord taulell color 0) = True
     |(cuatreHoritzontalDreta num coord taulell color 0) = True
     |otherwise = False
-
+    
+    
 cuatreVerticalDalt :: Int -> Coord -> Taulell -> Color -> Int -> Bool
 cuatreVerticalDalt num (Coord x y) (Taulell n m ma) color count
     |count >= num = True
     |x < 1 || y < 1 || x > n || y > m = False 
     |Map.lookup (x,y) ma /= (Just color) = False
-    |Map.lookup (x,y) ma == (Just color) = (cuatreVerticalDalt num (Coord (x+1) y) (Taulell n m ma) color (count+1))
+    |Map.lookup (x,y) ma == (Just color) = (cuatreVerticalDalt num (Coord (x-1) y) (Taulell n m ma) color (count+1))  
+    
     
 cuatreVerticalBaix :: Int -> Coord -> Taulell -> Color -> Int -> Bool
 cuatreVerticalBaix num (Coord x y) (Taulell n m ma) color count
     |count >= num = True
     |x < 1 || y < 1 || x > n || y > m = False 
     |Map.lookup (x,y) ma /= (Just color) = False
-    |Map.lookup (x,y) ma == (Just color) = (cuatreVerticalBaix num (Coord (x-1) y) (Taulell n m ma) color (count+1))
+    |Map.lookup (x,y) ma == (Just color) = (cuatreVerticalBaix num (Coord (x+1) y) (Taulell n m ma) color (count+1))
+
+  
+numEspaisVerticalDalt :: Int -> Coord -> Taulell -> Int -> Bool
+numEspaisVerticalDalt num (Coord x y) (Taulell n m ma)  count
+    |count >= num = True
+    |x < 1 || y < 1 || x > n || y > m = False 
+    |Map.lookup (x,y) ma == Nothing = (numEspaisVerticalDalt num (Coord (x-1) y) (Taulell n m ma) (count+1))   
+    |Map.lookup (x,y) ma /= Nothing = False
+     
+  
+{-    NO CAL
+numEspaisVerticalBaix :: Int -> Coord -> Taulell ->  Int -> Bool
+numEspaisVerticalBaix num (Coord x y) (Taulell n m ma)  count
+    |count >= num = True
+    |x < 1 || y < 1 || x > n || y > m = False 
+    |Map.lookup (x,y) ma == Nothing = (numEspaisVerticalBaix num (Coord (x+1) y) (Taulell n m ma)  (count+1))   
+    |Map.lookup (x,y) ma /= Nothing = False
+    -}     
+
+
+
 
 cuatreVertical :: Int -> Coord -> Taulell -> Color -> Bool
 cuatreVertical num coord taulell color
@@ -160,13 +214,36 @@ cuatreVerticalHoritzontalDiagonal num coord taulell color
 --llistaGrocs :: Taulell -> [Coord]
 --llistaGrocs (Taulell n m ma) = unlines $ [[(Coord nn mm) | mm <- [1.. m]] | nn <- [1..n], esGroc((Coord nn mm) (Taulell n m ma))]
     
---Donat un color i un taulell diu si hi ha 4 en ratlla d'aquets color
+--Donat un color i un taulell diu si hi ha num en ratlla d'aquets color
 cuatreEnRatlla :: Int -> Color -> Taulell -> Bool
 cuatreEnRatlla num color taulell = (cuatreEnRatllaCoord num color taulell (obteCoord (filtraPerColor color taulell)))
     where
         cuatreEnRatllaCoord :: Int -> Color -> Taulell -> [Coord] -> Bool
         cuatreEnRatllaCoord _ _ _ [] = False
         cuatreEnRatllaCoord num color taulell (x:xs) = (cuatreVerticalHoritzontalDiagonal num x taulell color) || (cuatreEnRatllaCoord num color taulell xs)
+
+        
+numEnRatllaY4VerticalHoritzontalDiagonal :: Int -> Coord -> Taulell -> Color -> Bool
+numEnRatllaY4VerticalHoritzontalDiagonal num coord taulell color
+    |(cuatreVerticalDalt num coord taulell color 0) && (cuatreVerticalDalt 4 coord taulell color 0)= True
+    |(cuatreVerticalBaix num coord taulell color 0) && (cuatreVerticalBaix 4 coord taulell color 0) = True
+    |(cuatreHoritzontalEsquerra num coord taulell color 0) && (cuatreHoritzontalEsquerra 4 coord taulell color 0)= True
+    |(cuatreHoritzontalDreta num coord taulell color 0) && (cuatreHoritzontalDreta 4 coord taulell color 0) = True
+    |(cuatreDiagonalEsquerraDalt num coord taulell color 0) && (cuatreDiagonalEsquerraDalt 4 coord taulell color 0)= True
+    |(cuatreDiagonalEsquerraBaix num coord taulell color 0) && (cuatreDiagonalEsquerraBaix 4 coord taulell color 0) = True
+    |(cuatreDiagonalDretaDalt num coord taulell color 0) && (cuatreDiagonalDretaDalt 4 coord taulell color 0) = True
+    |(cuatreDiagonalDretaBaix num coord taulell color 0) && (cuatreDiagonalDretaBaix 4 coord taulell color 0) = True
+    |otherwise = False    
+        
+numEnRatllaY4 :: Int -> Color -> Taulell -> Bool
+numEnRatllaY4 num color taulell = (numEnRatllaY4Coord num color taulell (obteCoord (filtraPerColor color taulell)))
+    where
+        numEnRatllaY4Coord :: Int -> Color -> Taulell -> [Coord] -> Bool
+        numEnRatllaY4Coord _ _ _ [] = False
+        numEnRatllaY4Coord num color taulell (x:xs) = (numEnRatllaY4VerticalHoritzontalDiagonal num x taulell color) || (numEnRatllaY4Coord num color taulell xs)
+            
+            
+        --numEnRatllaOMesCoord num color taulell (x:xs) = (cuatreVerticalHoritzontalDiagonal num x taulell color) || (numEnRatllaOMesCoord num color taulell xs)
             
 
 --retorna la coordenada a la que cauria una peça al ser llençada per una columna, pot retornar un valor fora del taulell en cas que una columna estigui plena o s'introdueixi una columna inexistent, aixi que s'haura de comprovar quan es fasi una crida
@@ -260,6 +337,7 @@ tallar4enRalla (Taulell n m ma) = tallar4enRalla2 (Taulell n m ma) [(posicioFina
             |(detectaGuanyador  (ficaFitxa y Vermell (Taulell n m ma)) == (Just Vermell)) = (Just y)
             |otherwise = (tallar4enRalla2 (Taulell n m ma) xs)
             
+
 contaFilaMesLlarga :: Taulell -> Int 
 contaFilaMesLlarga taulell = (contaFilaMesLlarga2 taulell 1)
     where
@@ -268,7 +346,7 @@ contaFilaMesLlarga taulell = (contaFilaMesLlarga2 taulell 1)
             |(cuatreEnRatlla num Groc taulell) = (contaFilaMesLlarga2 taulell (num+1))
             |otherwise = (num-1)
             
---retorna un [] amb el les coordenades que em permeten posar el maxim nombre de peces seguides, amb t = Taulell 6 7 (Map.fromList [((6,1),Groc),((6,2),Groc),((6,3),Groc),((6,4),Vermell),((5,2),Vermell),((5,3),Vermell),((4,2),Vermell),((5,1),Vermell),((4,1),Vermell),((3,1),Groc)]) no funciona ja que conta que el maxim nombre de peces es 3 i al posar una més no pot superarho
+--retorna un [] amb el les coordenades que em permeten posar el maxim nombre de peces seguides, amb num no funciona ja que conta que el maxim nombre de peces es 3 i al posar una més no pot superarho
 
 maximPecesIa :: Taulell -> [Int]
 maximPecesIa (Taulell n m ma) = maximPecesIa2 (Taulell n m ma) (contaFilaMesLlarga (Taulell n m ma))  [(posicioFinal col (Taulell n m ma)) | col <- [1 .. m]]
@@ -282,9 +360,7 @@ maximPecesIa (Taulell n m ma) = maximPecesIa2 (Taulell n m ma) (contaFilaMesLlar
 --escullInt :: Maybe Int -> Int 
 --escollInt (Just x) = x
 
-isJust :: Maybe a -> Bool
-isJust (Just a) = True
-isJust Nothing = False
+
 
 escullTirada :: Int -> [Int] -> Int
 escullTirada m [] = (m `div`2)
@@ -295,7 +371,31 @@ greedy :: Taulell -> Int
 greedy (Taulell n m ma)
     |(isJust (tallar4enRalla (Taulell n m ma))) = (\(Just i)->i) $ (tallar4enRalla (Taulell n m ma))
     |otherwise = escullTirada m (maximPecesIa (Taulell n m ma))
-      
+    
+ --------------------------------------------------
+ -------------------------------------------------
+ 
+ ----------SMART-------------
+ ----------------------------
+ 
+
+--Realitza una ponderació en forma de campana de Gauss, de forma que les columnes dels valen 0 punts i van sumant x fins arribar al punt mitg 
+punts :: Int -> Int -> Int 
+punts m col = ((minimum [(col-1),(m-col)]) * 2)
+
+ 
+ {-
+ evaluaPosicioPeces :: Taulell -> Color -> Int 
+ evaluaPosicioPeces taulell color = evaluaPosicioPeces2 taulell color (obteCoord(filtraPerColor color taulell))
+    where
+        evaluaPosicioPeces2 :: Taulell -> Color -> [Coord]
+        evaluaPosicioPeces2 (Taulell n m ma) color (x:xs) =
+        -}
+ ----------------------------
+ ----------------------------
+isJust :: Maybe a -> Bool
+isJust (Just a) = True
+isJust Nothing = False     
 {-
 main = do
     putStrLn("Defineix la mida del taulell n*m")
@@ -393,4 +493,15 @@ main = do
             putStrLn(show taulellAct)
         else
             return () 
+            -}
+            
+            
+            {-
+            TODO:
+            -Arreglar greedy.
+            -Que no ponga (Taulell n m ma en todos lados)
+            -Lo que me dijo el profe de pasar estrategia como parametro
+            -Smart
+            -Que no se puedan poner fichas si la columna esta llena
+            -Borrar funcions que no s'utilitzen
             -}
