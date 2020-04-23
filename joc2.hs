@@ -335,21 +335,27 @@ randInt low high = do
 
 --Greedy
 
+canviColor :: Color -> Color
+canviColor color
+    |color == Groc = Vermell
+    |otherwise = Groc
+
 --retorna les coord a les que s'ha de tirar per evitar el 4 en ralla de l'enemic si hi ha
-tallar4enRalla :: Taulell -> Maybe Int
-tallar4enRalla (Taulell n m ma) = tallar4enRalla2 (Taulell n m ma) [(posicioFinal col (Taulell n m ma)) | col <- [1 .. m]]
+tallar4enRalla :: Taulell -> Color -> Maybe Int
+tallar4enRalla (Taulell n m ma) color = tallar4enRalla2 (Taulell n m ma) color [(posicioFinal col (Taulell n m ma)) | col <- [1 .. m]]
     where 
-        tallar4enRalla2 :: Taulell -> [Coord] ->Maybe Int
-        tallar4enRalla2 _ [] = Nothing
-        tallar4enRalla2 (Taulell n m ma) ((Coord x y):xs) 
-            |(detectaGuanyador  (ficaFitxa y Vermell (Taulell n m ma)) == (Just Vermell)) = (Just y)
-            |otherwise = (tallar4enRalla2 (Taulell n m ma) xs)
+        tallar4enRalla2 :: Taulell -> Color -> [Coord] ->Maybe Int
+        tallar4enRalla2 _ _ [] = Nothing
+        tallar4enRalla2 (Taulell n m ma) color ((Coord x y):xs) 
+            |(detectaGuanyador  (ficaFitxa y color (Taulell n m ma)) == (Just color)) = (Just y)
+            |otherwise = (tallar4enRalla2 (Taulell n m ma) color xs)
 
 
 --numEnRatllaY4 :: Int -> Color -> Taulell -> Bool
-        
-contaFilaMesLlarga :: Taulell -> Int 
-contaFilaMesLlarga taulell = maximum [num | num <- [1..4], (numEnRatllaY4 num Groc taulell)]
+
+--conta la fila més llarga que té un color que es pot arribar a convertir en 4 en ratlla
+contaFilaMesLlarga :: Taulell -> Color -> Int 
+contaFilaMesLlarga taulell color = maximum [num | num <- [1..4], (numEnRatllaY4 num color taulell)]
 
 {-
 contaFilaMesLlarga :: Taulell -> Int 
@@ -362,23 +368,26 @@ contaFilaMesLlarga taulell = (contaFilaMesLlarga2 taulell 1)
     
     -}
 --[num | num <- [1..4], (cuatreEnRatlla num Groc (Taulell n m ma))]
+--(Taulell n m ma) = Taulell 6 7 (Map.fromList [((6,1),Groc),((6,2),Groc),((6,3),Groc),((6,4),Vermell),((5,2),Vermell),((5,3),Vermell),((4,2),Groc),((5,1),Vermell),((4,1),Groc),((3,1),Vermell),((3,2),Vermell),((5,4),Vermell)])
+
 
 
 --retorna un [] amb el les coordenades que em permeten posar el maxim nombre de peces seguides, amb num no funciona ja que conta que el maxim nombre de peces es 3 i al posar una més no pot superarho
-
-maximPecesIa :: Taulell -> [Int]
-maximPecesIa (Taulell n m ma) = maximPecesIa2 (Taulell n m ma) (contaFilaMesLlarga (Taulell n m ma))  [(posicioFinal col (Taulell n m ma)) | col <- [1 .. m]]
-    where --retorna totes les columnes [Int] a on si tirem una peça incrementara la linia de peces més llarga
-        maximPecesIa2 :: Taulell -> Int -> [Coord] -> [Int]
-        maximPecesIa2 _ _ [] = []
-        maximPecesIa2 (Taulell n m ma) maxi ((Coord x y):xs) 
-            |((contaFilaMesLlarga (ficaFitxa y Groc (Taulell n m ma))) > maxi) =[y] ++ (maximPecesIa2 (Taulell n m ma) (contaFilaMesLlarga (ficaFitxa y Vermell (Taulell n m ma)))  xs)
-            |otherwise = (maximPecesIa2 (Taulell n m ma) maxi xs)
 {-
-maximPecesIa :: Taulell -> [Int]
-maximPecesIa (Taulell n m ma) = [y | y <- reverse [1..m], taux <- [(ficaFitxa y Groc (Taulell n m ma))], (contaFilaMesLlarga (Taulell n m ma)) < (contaFilaMesLlarga taux)]
-
+maximPecesIa :: Taulell -> Color -> [Int]
+maximPecesIa (Taulell n m ma) color = maximPecesIa2 (Taulell n m ma) color (contaFilaMesLlarga (Taulell n m ma) color)  [(posicioFinal col (Taulell n m ma)) | col <- [1 .. m]]
+    where --retorna totes les columnes [Int] a on si tirem una peça incrementara la linia de peces més llarga
+        maximPecesIa2 :: Taulell -> Color -> Int -> [Coord] -> [Int]
+        maximPecesIa2 _ _ _ [] = []
+        maximPecesIa2 (Taulell n m ma) color maxi ((Coord x y):xs) 
+            |((contaFilaMesLlarga (ficaFitxa y color (Taulell n m ma) color)) > maxi) =[y] ++ (maximPecesIa2 (Taulell n m ma) color (contaFilaMesLlarga (ficaFitxa y color (Taulell n m ma)))  xs)
+            |otherwise = (maximPecesIa2 (Taulell n m ma) color maxi xs)
             -}
+--retorna una llista amb les columnes a les que tirar una peça maximitza
+maximPecesIa :: Taulell -> Color -> [Int]
+maximPecesIa (Taulell n m ma) color = [y | y <- [1..m], taux <- [(ficaFitxa y color (Taulell n m ma))], (contaFilaMesLlarga (Taulell n m ma) color) < (contaFilaMesLlarga taux color)]
+
+            
       --  [y | y <- [1..m], taux <- [(ficaFitxa y Groc (Taulell n m ma))] , (contaFilaMesLlarga (Taulell n m ma)) < (contaFilaMesLlarga taux)]
 --escullInt :: Maybe Int -> Int 
 --escollInt (Just x) = x
@@ -387,13 +396,14 @@ maximPecesIa (Taulell n m ma) = [y | y <- reverse [1..m], taux <- [(ficaFitxa y 
 
 escullTirada :: Int -> [Int] -> Int
 escullTirada m [] = (m `div`2)
-escullTirada m xs =  head (take (m `div` 2) xs)
+escullTirada m [x] = x
+escullTirada m xs =  last (take ((length xs) `div` 2) xs)
 
 
-greedy :: Taulell -> Int
-greedy (Taulell n m ma)
-    |(isJust (tallar4enRalla (Taulell n m ma))) = (\(Just i)->i) $ (tallar4enRalla (Taulell n m ma))
-    |otherwise = escullTirada m (maximPecesIa (Taulell n m ma))
+greedy :: Taulell -> Color -> Int
+greedy (Taulell n m ma) color
+    |(isJust (tallar4enRalla (Taulell n m ma) (canviColor color))) = (\(Just i)->i) $ (tallar4enRalla (Taulell n m ma) (canviColor color))
+    |otherwise = escullTirada m (maximPecesIa (Taulell n m ma) color)
     
  --------------------------------------------------
  -------------------------------------------------
@@ -406,10 +416,28 @@ greedy (Taulell n m ma)
 punts :: Int -> Int -> Int 
 punts m col = ((minimum [(col-1),(m-col)]) * 2)
 
+ --numEnRatllaY4VerticalHoritzontalDiagonal :: Int -> Coord -> Taulell -> Color -> Bool
+
+--cuatreVerticalDaltPunts :: Int -> Coord -> Taulell
+
+--suma 1 per cada num en ratlla (amb possibilitat de ser 4 en ratlla en algun moment) que es troba desde les coordenades especificades
+numEnRatllaY4VerticalHoritzontalDiagonalPunts :: Int -> Coord -> Taulell -> Color -> Int
+numEnRatllaY4VerticalHoritzontalDiagonalPunts num (Coord x y) taulell color = (fromEnum ((cuatreVerticalDalt num (Coord x y) taulell color 0) && (numEspaisVerticalDalt (4-num) (Coord (x-num) y)) taulell 0)) + (fromEnum ((cuatreHoritzontalEsquerra num (Coord x y) taulell color 0) && (numEspaisHoritzontalEsquerra (4-num) (Coord x (y-num)) taulell 0))) + (fromEnum ((cuatreHoritzontalDreta num (Coord x y) taulell color 0) && (numEspaisHoritzontalDreta (4-num) (Coord x (y+num)) taulell  0))) + (fromEnum ((cuatreDiagonalEsquerraDalt num (Coord x y) taulell color 0) && (numEspaisDiagonalEsquerraDalt (4-num) (Coord (x-num) (y-num)) taulell  0))) + (fromEnum ((cuatreDiagonalDretaDalt num (Coord x y) taulell color 0) && (numEspaisDiagonalDretaDalt (4-num) (Coord (x-num) (y+num)) taulell  0)))
+
+{-
++ (fromEnum ((cuatreHoritzontalEsquerra num (Coord x y) taulell color 0) && (numEspaisHoritzontalEsquerra (4-num) (Coord x (y-num)) taulell 0))) + (fromEnum ((cuatreHoritzontalDreta num (Coord x y) taulell color 0) && (numEspaisHoritzontalDreta (4-num) (Coord x (y+num)) taulell  0))) + (fromEnum ((cuatreDiagonalEsquerraDalt num (Coord x y) taulell color 0) && (numEspaisDiagonalEsquerraDalt (4-num) (Coord (x-num) (y-num)) taulell  0))) + (fromEnum ((cuatreDiagonalDretaDalt num (Coord x y) taulell color 0) && (numEspaisDiagonalDretaDalt (4-num) (Coord (x-num) (y+num)) taulell  0)))
+-}
+       
  
- {-
- evaluaPosicioPeces :: Taulell -> Color -> Int 
- evaluaPosicioPeces taulell color = evaluaPosicioPeces2 taulell color (obteCoord(filtraPerColor color taulell))
+evaluaPosicioPeces :: Taulell -> Color -> Int 
+evaluaPosicioPeces taulell color 
+    |(numEnRatllaY4 4 color taulell) = 1000
+    |otherwise = (10* (sum [(numEnRatllaY4VerticalHoritzontalDiagonalPunts 2 coord taulell color) |  coord <- (obteCoord(filtraPerColor color taulell))])) + (15* (sum [(numEnRatllaY4VerticalHoritzontalDiagonalPunts 3 coord taulell color) |  coord <- (obteCoord(filtraPerColor color taulell))]))
+        
+        
+            {-
+evaluaPosicioPeces :: Taulell -> Color -> Int 
+evaluaPosicioPeces taulell color = evaluaPosicioPeces2 taulell color (obteCoord(filtraPerColor color taulell))
     where
         evaluaPosicioPeces2 :: Taulell -> Color -> [Coord]
         evaluaPosicioPeces2 (Taulell n m ma) color (x:xs) =
@@ -440,7 +468,7 @@ quinaEstrategia ia
 
 fesMoviment :: Estrategia -> Taulell -> Taulell
 fesMoviment x taulell
-    |x == Greedy = (ficaFitxa (greedy taulell) Groc taulell)
+    |x == Greedy = (ficaFitxa (greedy taulell Groc) Groc taulell)
     |otherwise = undefined
 
 iaGestio :: Estrategia -> Taulell -> IO()
@@ -527,4 +555,5 @@ main = do
             -Smart
             -Que no se puedan poner fichas si la columna esta llena
             -Borrar funcions que no s'utilitzen
+            --arreglar la funcion de puntuar para que no cuente 3 veces las filas de 3
             -}
