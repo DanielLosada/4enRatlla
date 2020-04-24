@@ -430,9 +430,9 @@ numEnRatllaY4VerticalHoritzontalDiagonalPunts num (Coord x y) taulell color = (f
        
  
 evaluaPosicioPeces :: Taulell -> Color -> Int 
-evaluaPosicioPeces taulell color 
+evaluaPosicioPeces taulell@(Taulell n m ma) color 
     |(numEnRatllaY4 4 color taulell) = 1000
-    |otherwise = (10* (sum [(numEnRatllaY4VerticalHoritzontalDiagonalPunts 2 coord taulell color) |  coord <- (obteCoord(filtraPerColor color taulell))])) + (15* (sum [(numEnRatllaY4VerticalHoritzontalDiagonalPunts 3 coord taulell color) |  coord <- (obteCoord(filtraPerColor color taulell))]))
+    |otherwise = (10* (sum [(numEnRatllaY4VerticalHoritzontalDiagonalPunts 2 coord taulell color) |  coord <- (obteCoord(filtraPerColor color taulell))])) + (15* (sum [(numEnRatllaY4VerticalHoritzontalDiagonalPunts 3 coord taulell color) |  coord <- (obteCoord(filtraPerColor color taulell))])) + (sum [(punts m col) | (Coord x col) <- (obteCoord(filtraPerColor color taulell))])
         
         
             {-
@@ -442,6 +442,66 @@ evaluaPosicioPeces taulell color = evaluaPosicioPeces2 taulell color (obteCoord(
         evaluaPosicioPeces2 :: Taulell -> Color -> [Coord]
         evaluaPosicioPeces2 (Taulell n m ma) color (x:xs) =
         -}
+        
+ {-       
+taulellsGenerables :: Taulell -> Color -> [(Taulell,Int)]
+taulellsGenerables (Taulell n m ma) color = [((ficaFitxa col color (Taulell n m ma)), col) | col <- [1..m], (\(Coord x y) -> x) (posicioFinal col (Taulell n m ma)) > 0]
+-}
+
+taulellsGenerables :: Taulell -> [Int]
+taulellsGenerables (Taulell n m ma)  = [ col | col <- [1..m], (\(Coord x y) -> x) (posicioFinal col (Taulell n m ma)) > 0]
+
+
+smartMinMax :: Taulell -> Color -> Int
+smartMinMax  taulell color  
+    |color == Groc =  (\(punts,colum)-> colum)(maxim [((smartMinMaxRec 3 taulell color True),col) | col <- (taulellsGenerables taulell)])
+    |otherwise = (\(punts,colum)-> colum) (minim [((smartMinMaxRec 3 taulell color False),col) | col <- (taulellsGenerables taulell)])
+    
+smartMinMaxRec :: Int -> Taulell -> Color -> Bool -> Int
+smartMinMaxRec _ _ _ _ = undefined
+        
+maxim :: [(Int,Int)] -> (Int,Int)
+maxim ((punts,col):xs)
+    |xs == [] || punts > puntsxs = (punts,col)
+    |otherwise = (puntsxs,colxs)
+    where (puntsxs,colxs) = maxim xs
+
+minim :: [(Int,Int)] -> (Int,Int)
+minim ((punts,col):xs)
+    |xs == [] || punts < puntsxs = (punts,col)
+    |otherwise = (puntsxs,colxs)
+    where (puntsxs,colxs) = minim xs
+{-    
+myMaximum :: [Int] -> Int
+myMaximum [last] = last --si nomes queda lultim element el max es lultim element
+myMaximum (head:tail) = head `max` (myMaximum tail) 
+
+maxim ::[(Int,Int)] -> Int 
+maxim [(punts,col)] = (punts,col)
+maxim ((punts,col):xs)
+    |punts > 
+    -}
+    
+    {-
+--(Punts, Col) retorna la Col que permet generar el maxim o el minim de punts
+maxOMin :: (Int,Int) -> Bool -> Int
+maxOMin (punts,col) maximitza 
+    |maximitza =
+
+
+--(Int,Int) = (Punts, Col)
+smartMinMaxRec :: Int -> Taulell -> Color -> Bool -> Int
+smartMinMaxRec depth taulell@(Taulell n m ma) color maximitza = 
+    if depth == 0 then
+        ((evaluaPosicioPeces taulell Groc)+(evaluaPosicioPeces taulell Vermell))
+    else
+        if maximitza then
+            maximum [(smartMinMaxRec tau (canviColor color) False),tau <- (taulellsGenerables taulell color)]
+        else
+            minimum [(smartMinMaxRec tau (canviColor color) True),tau <- (taulellsGenerables taulell color)]
+            -}
+                   
+                                                        
  ----------------------------
  ----------------------------
 isJust :: Maybe a -> Bool
@@ -555,5 +615,6 @@ main = do
             -Smart
             -Que no se puedan poner fichas si la columna esta llena
             -Borrar funcions que no s'utilitzen
-            --arreglar la funcion de puntuar para que no cuente 3 veces las filas de 3
+            --arreglar la funcion de puntuar para que no cuente 2 veces las filas de 3
+            - la funcio de punts tambe compta peces que estan tancades i per tant no serveixen de res
             -}
