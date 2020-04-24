@@ -443,22 +443,36 @@ evaluaPosicioPeces taulell color = evaluaPosicioPeces2 taulell color (obteCoord(
         evaluaPosicioPeces2 (Taulell n m ma) color (x:xs) =
         -}
         
- {-       
-taulellsGenerables :: Taulell -> Color -> [(Taulell,Int)]
-taulellsGenerables (Taulell n m ma) color = [((ficaFitxa col color (Taulell n m ma)), col) | col <- [1..m], (\(Coord x y) -> x) (posicioFinal col (Taulell n m ma)) > 0]
--}
+        
+taulellsGenerables :: Taulell -> Color -> [Taulell]
+taulellsGenerables (Taulell n m ma) color = [(ficaFitxa col color (Taulell n m ma)) | col <- [1..m], (\(Coord x y) -> x) (posicioFinal col (Taulell n m ma)) > 0]
 
-taulellsGenerables :: Taulell -> [Int]
-taulellsGenerables (Taulell n m ma)  = [ col | col <- [1..m], (\(Coord x y) -> x) (posicioFinal col (Taulell n m ma)) > 0]
+
+taulellsGenerablesCol :: Taulell -> [Int]
+taulellsGenerablesCol (Taulell n m ma)  = [ col | col <- [1..m], (\(Coord x y) -> x) (posicioFinal col (Taulell n m ma)) > 0]
 
 
 smartMinMax :: Taulell -> Color -> Int
 smartMinMax  taulell color  
-    |color == Groc =  (\(punts,colum)-> colum)(maxim [((smartMinMaxRec 3 taulell color True),col) | col <- (taulellsGenerables taulell)])
-    |otherwise = (\(punts,colum)-> colum) (minim [((smartMinMaxRec 3 taulell color False),col) | col <- (taulellsGenerables taulell)])
+    |color == Groc =  (\(punts,colum)-> colum)(maxim [((smartMinMaxRec 3 (ficaFitxa col color taulell) (canviColor color) False),col) | col <- (taulellsGenerablesCol taulell)])
+    |otherwise = (\(punts,colum)-> colum) (minim [((smartMinMaxRec 3 (ficaFitxa col color taulell) (canviColor color) True),col) | col <- (taulellsGenerablesCol taulell)])
+    
     
 smartMinMaxRec :: Int -> Taulell -> Color -> Bool -> Int
-smartMinMaxRec _ _ _ _ = undefined
+smartMinMaxRec depth taulell@(Taulell n m ma) color maximitza = 
+    if (numEnRatllaY4 4 Vermell taulell) then
+            -1000
+    else if  (numEnRatllaY4 4 Groc taulell) then
+            1000
+    else
+        if depth == 0 then
+            ((evaluaPosicioPeces taulell Groc)-(evaluaPosicioPeces taulell Vermell))
+        else
+            if maximitza then
+                maximum [(smartMinMaxRec (depth - 1) tau (canviColor color) False) | tau <-(taulellsGenerables taulell color)]
+            else
+                minimum [(smartMinMaxRec (depth - 1) tau (canviColor color) True) | tau <-(taulellsGenerables taulell color)]
+                    
         
 maxim :: [(Int,Int)] -> (Int,Int)
 maxim ((punts,col):xs)
@@ -551,9 +565,14 @@ iaGestio ia (Taulell n m ma) = do
             return()
         else
             (humaGestio ia taulellAct)
-    else
-        putStrLn("3")
-
+    else do--ficaFitxa :: Int -> Color -> Taulell -> Taulell
+        let taulellAct = (ficaFitxa (smartMinMax (Taulell n m ma) Groc) Groc (Taulell n m ma))
+        putStrLn(show taulellAct)
+        if ((detectaGuanyador taulellAct) == (Just Groc)) then do
+            putStrLn("HAS PERDUT!  :(")
+            return()
+        else
+            (humaGestio ia taulellAct)
 humaGestio :: Estrategia -> Taulell -> IO()
 humaGestio ia taulell = do
         putStrLn("Tria la columna on vols deixar la peça: ")
