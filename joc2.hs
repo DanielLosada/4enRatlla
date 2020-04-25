@@ -545,6 +545,9 @@ fesMoviment x taulell
     |x == Greedy = (ficaFitxa (greedy taulell Groc) Groc taulell)
     |otherwise = undefined
 
+jugada :: (Taulell -> Color -> Int) -> Taulell -> Color -> Taulell
+jugada fun taulell color = (ficaFitxa (fun taulell color) color taulell)
+
 iaGestio :: Estrategia -> Taulell -> IO()
 iaGestio ia (Taulell n m ma) = do
     if ia == Random then do
@@ -629,10 +632,12 @@ main = do
             {-
             TODO:
             -Arreglar greedy.
+            -intentar utilitzar més coses de haskell
             -Que no ponga (Taulell n m ma en todos lados)
             -Lo que me dijo el profe de pasar estrategia como parametro
             -Smart
             -Que no se puedan poner fichas si la columna esta llena
+            -funcion de empate
             -Borrar funcions que no s'utilitzen
             --arreglar la funcion de puntuar para que no cuente 2 veces las filas de 3
             - la funcio de punts tambe compta peces que estan tancades i per tant no serveixen de res
