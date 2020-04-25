@@ -550,7 +550,13 @@ main = do
     
     -}
     {- main = forever $ putStrLn "do something" -}
+    
 
+
+empat :: Taulell -> Bool
+empat (Taulell n m ma) 
+    |[ col | col <- [1..m], (\(Coord x y) -> x) (posicioFinal col (Taulell n m ma)) > 0] == [] = True
+    |otherwise = False
     
 quinaEstrategia :: Int -> Estrategia
 quinaEstrategia ia
@@ -657,7 +663,8 @@ main = do
             -Lo que me dijo el profe de pasar estrategia como parametro
             -Smart
             -Que no se puedan poner fichas si la columna esta llena
-            -funcion de empate
+            -funcion de empate !!!!!!!!!
+            -mirar que pasa con los maximums i los minimums
             -Borrar funcions que no s'utilitzen
             --arreglar la funcion de puntuar para que no cuente 2 veces las filas de 3
             - la funcio de punts tambe compta peces que estan tancades i per tant no serveixen de res
