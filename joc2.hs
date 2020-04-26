@@ -16,12 +16,6 @@ data Color = Groc | Vermell deriving(Show, Eq)
 
 data Estrategia = Random | Greedy | Smart deriving(Eq)
 
-{-
-instance Show Taulell where
-    show (Taulell n m ma) = unlines [concat [(show i) | i <- [0 .. m-1]] ++ "\n" ++
-                            [[(showColor (obteCasella (Coord nn mm) (Taulell n m ma))) |
-                             nn <- [0 .. n-1]] | mm <- [0 .. m-1]]    ]
-                             -}
                              
 instance Show Taulell where
     show (Taulell n m ma) = unlines $  [[(showColor (obteCasella (Coord nn mm) (Taulell n m ma))) | mm <- [1.. m]] | nn <- [1..n]] ++ [concat [(show i) | i <- [1 .. m]]]                            
@@ -43,6 +37,9 @@ obteCoord :: [((Int,Int),Color)] -> [Coord]
 obteCoord [] = []
 obteCoord (((ia,ib),c):xs) = [(Coord ia ib)] ++ (obteCoord xs)
 
+
+
+    
 --obte els elements d'un mateix color d'un taulell
 filtraPerColor :: Color -> Taulell -> [((Int,Int),Color)]
 filtraPerColor color (Taulell n m ma)
@@ -287,10 +284,8 @@ ficaFitxa col taulell = (ficaFitxaCoord col taulell coord)
         ficaFitxaCoord :: Int -> Taulell -> Coord -> Taulell
         ficaFitxaCoord col (Taulell n m ma) (Coord x y)
         -}
-        
--- t = Taulell 6 7 (Map.fromList [((6,1),Groc),((6,2),Groc),((6,3),Groc),((6,4),Vermell),((5,2),Vermell),((5,3),Vermell),((4,2),Vermell)])
-    
---consulta al taulell si existeix una peça a les coordenades especificades, retorna nothing si no hi ha res o Just Peca
+            
+--consulta al taulell si existeix una peça a les coordenades especificades, retorna nothing si no hi ha res o Just Color
 obteCasella :: Coord-> Taulell -> Maybe Color
 obteCasella (Coord n m) (Taulell _ _ ma) = Map.lookup (n,m) ma
 
@@ -309,16 +304,6 @@ detectaGuanyador taulell
     |otherwise = Nothing
 
 
-{-
-showPeca :: Peca -> Char
-showPeca Nothing = ' '
-showPeca (Just a) = showColor a
-
-readPeca :: Char -> Peca
-readPeca ' ' = Nothing
-readPeca c = Just (readColor c)
--}
-
 
 showColor :: Maybe Color -> Char
 showColor Nothing = ' '
@@ -328,10 +313,10 @@ showColor (Just c)
 
     
 
-readColor :: Char -> Maybe Color
-readColor 'G' = (Just Groc)
-readColor 'V' = (Just Vermell)
-readColor ' ' = Nothing
+obteColor :: Char ->  Color
+obteColor 'G' = Groc
+obteColor 'V' = Vermell
+
 
 
 
@@ -441,7 +426,7 @@ greedy taulell@(Taulell n m ma) color
 
 --Realitza una ponderació en forma de campana de Gauss, de forma que les columnes dels extrems valen 0 punts i van sumant x fins arribar al punt mitg 
 punts :: Int -> Int -> Int 
-punts m col = ((minimum [(col-1),(m-col)]) * 0)
+punts m col = ((minimum [(col-1),(m-col)]) * 2)
 
  --numEnRatllaY4VerticalHoritzontalDiagonal :: Int -> Coord -> Taulell -> Color -> Bool
 
@@ -573,7 +558,7 @@ main = do
     {- main = forever $ putStrLn "do something" -}
     
 
-
+--retorna true si el taulell està ple
 empat :: Taulell -> Bool
 empat (Taulell n m ma) 
     |[ col | col <- [1..m], (\(Coord x y) -> x) (posicioFinal col (Taulell n m ma)) > 0] == [] = True
@@ -585,11 +570,7 @@ quinaEstrategia ia
     |ia == 2 = Greedy
     |otherwise = Smart
 
-fesMoviment :: Estrategia -> Taulell -> Taulell
-fesMoviment x taulell
-    |x == Greedy = (ficaFitxa (greedy taulell Groc) Groc taulell)
-    |otherwise = undefined
-
+--retorna el taulell resultat d'inserir la fitxa a la columna calculada per l'estratègia introduïda com a paràmetre
 jugada :: (Taulell -> Color -> IO Int) -> Taulell -> Color -> IO Taulell
 jugada fun taulell color = do
     x <- (fun taulell color)
@@ -599,7 +580,8 @@ jugada fun taulell color = do
 
     
 iaGestio :: Estrategia -> Taulell -> IO()
-iaGestio ia taulell@(Taulell n m ma) = do
+iaGestio ia taulell@(Taulell n m ma)= do
+    
     if ia == Random then do
         taulellAct <- (jugada randomMove taulell Groc)
         putStrLn(show taulellAct)
@@ -622,8 +604,10 @@ iaGestio ia taulell@(Taulell n m ma) = do
         else
             (humaGestio ia taulellAct)
     else do
+        
         taulellAct <- (jugada smartMinMaxIO taulell Groc)
         putStrLn(show taulellAct)
+        
         if ((detectaGuanyador taulellAct) == (Just Groc)) then do
             putStrLn("HAS PERDUT!  :(")
             return()
@@ -667,9 +651,10 @@ main = do
     putStrLn("Introdueix M : ")
     linee <- getLine
     let m = (read linee::Int)
-    putStrLn("Es creará un taulell de " ++ line ++ " per " ++ linee)
+    putStrLn("S'ha creará un taulell de " ++ line ++ " per " ++ linee ++ " :")
     putStrLn(show (inicialitzaTaulell n m))
     let taulell = inicialitzaTaulell n m
+    
     putStrLn("Escull la dificultat de la IA: Contesta 1, 2, o 3")
     putStrLn("  1. Random")
     putStrLn("  2. Greedy")
@@ -677,13 +662,16 @@ main = do
     line <- getLine
     putStrLn("Has escollit la dificultat " ++ line)
     let ia = (quinaEstrategia (read line::Int))
+    
+    
     putStrLn("Vols començar tu? Contesta si o no.")
     si <- getLine
     let taulellAct = taulell
     if si == "si" then do
         (humaGestio ia taulell)
         
-    else
+    else 
+        
         (iaGestio ia taulell)
         {-
         if ia == 1 then do
