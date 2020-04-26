@@ -269,7 +269,7 @@ numEnRatllaY4 num color taulell = (numEnRatllaY4Coord num color taulell (obteCoo
 
 --retorna la coordenada a la que cauria una peça al ser llençada per una columna, pot retornar un valor fora del taulell en cas que una columna estigui plena o s'introdueixi una columna inexistent, aixi que s'haura de comprovar quan es fasi una crida
 posicioFinal :: Int -> Taulell -> Coord
-posicioFinal col (Taulell n m ma) = (posicioFinal2 col (Taulell n m ma) ((obteCoord ((filtraPerColor Groc (Taulell n m ma))++(filtraPerColor Vermell (Taulell n m ma))))))
+posicioFinal col taulell@(Taulell n m ma) = (posicioFinal2 col taulell ((obteCoord ((filtraPerColor Groc taulell)++(filtraPerColor Vermell taulell)))))
     where
         posicioFinal2 :: Int -> Taulell -> [Coord] -> Coord
         posicioFinal2 col (Taulell n m ma) coord = 
@@ -355,13 +355,13 @@ canviColor color
 
 --retorna les coord a les que s'ha de tirar per evitar el 4 en ralla del color si hi ha, en cas de que hi hagin 2 posicions que li permetin fer 4 en ratlla, retornarà només la primera, ja que només pot fer un moviment hi haurà perdut igualment, i si per casualitat l'enemic no fa un dels dos moviments guanyadors, a la seguent ronda es tornarà a cridar la funció i retornarà l'unic punt de tall que quedi
 tallar4enRalla :: Taulell -> Color -> Maybe Int
-tallar4enRalla (Taulell n m ma) color = tallar4enRalla2 (Taulell n m ma) color [(posicioFinal col (Taulell n m ma)) | col <- [1 .. m]]
+tallar4enRalla taulell@(Taulell n m ma) color = tallar4enRalla2 taulell color [(posicioFinal col taulell) | col <- [1 .. m]]
     where 
         tallar4enRalla2 :: Taulell -> Color -> [Coord] ->Maybe Int
         tallar4enRalla2 _ _ [] = Nothing
-        tallar4enRalla2 (Taulell n m ma) color ((Coord x y):xs) 
-            |(detectaGuanyador  (ficaFitxa y color (Taulell n m ma)) == (Just color)) = (Just y)
-            |otherwise = (tallar4enRalla2 (Taulell n m ma) color xs)
+        tallar4enRalla2 taulell@(Taulell n m ma) color ((Coord x y):xs) 
+            |(detectaGuanyador  (ficaFitxa y color taulell) == (Just color)) = (Just y)
+            |otherwise = (tallar4enRalla2 taulell color xs)
 
 
 --numEnRatllaY4 :: Int -> Color -> Taulell -> Bool
@@ -396,9 +396,10 @@ maximPecesIa (Taulell n m ma) color = maximPecesIa2 (Taulell n m ma) color (cont
             |((contaFilaMesLlarga (ficaFitxa y color (Taulell n m ma) color)) > maxi) =[y] ++ (maximPecesIa2 (Taulell n m ma) color (contaFilaMesLlarga (ficaFitxa y color (Taulell n m ma)))  xs)
             |otherwise = (maximPecesIa2 (Taulell n m ma) color maxi xs)
             -}
+            
 --retorna una llista amb les columnes a les que tirar una peça maximitza
 maximPecesIa :: Taulell -> Color -> [Int]
-maximPecesIa (Taulell n m ma) color = [y | y <- [1..m], taux <- [(ficaFitxa y color (Taulell n m ma))], (contaFilaMesLlarga (Taulell n m ma) color) < (contaFilaMesLlarga taux color)]
+maximPecesIa taulell@(Taulell n m ma) color = [y | y <- [1..m], taux <- [(ficaFitxa y color taulell)], (contaFilaMesLlarga taulell color) < (contaFilaMesLlarga taux color), (\(Coord x y) -> x) (posicioFinal y taulell) > 0 ]
 
             
       --  [y | y <- [1..m], taux <- [(ficaFitxa y Groc (Taulell n m ma))] , (contaFilaMesLlarga (Taulell n m ma)) < (contaFilaMesLlarga taux)]
@@ -407,16 +408,16 @@ maximPecesIa (Taulell n m ma) color = [y | y <- [1..m], taux <- [(ficaFitxa y co
 
 
 --el greedy necessita aquesta funció per escollir una columna d'entre diverses possibilitats igual de bones, simplement agafa la de la meitat, aquesta decisió és arbitraria ja que dona igual quina agafi
-escullTirada :: Int -> [Int] -> Int
-escullTirada m [] = (m `div`2)
-escullTirada m [x] = x
-escullTirada m xs =  last (take ((length xs) `div` 2) xs)
+escullTirada :: Taulell -> [Int] -> Int
+escullTirada (Taulell n m ma) [] = head [y | y <- [1..m],(\(Coord x y) -> x) (posicioFinal y (Taulell n m ma)) > 0 ]
+escullTirada _ [x] = x
+escullTirada _ xs =  last (take ((length xs) `div` 2) xs)
 
 
 greedy :: Taulell -> Color -> Int
-greedy (Taulell n m ma) color
-    |(esJust (tallar4enRalla (Taulell n m ma) (canviColor color))) = (\(Just i)->i) $ (tallar4enRalla (Taulell n m ma) (canviColor color))
-    |otherwise = escullTirada m (maximPecesIa (Taulell n m ma) color)
+greedy taulell@(Taulell n m ma) color
+    |(esJust (tallar4enRalla taulell (canviColor color))) = (\(Just i)->i) $ (tallar4enRalla taulell (canviColor color))
+    |otherwise = escullTirada taulell (maximPecesIa taulell color)
     
  --------------------------------------------------
  -------------------------------------------------
@@ -464,11 +465,11 @@ avaluaPosicioPeces taulell color = avaluaPosicioPeces2 taulell color (obteCoord(
         
 --retorna tots els taulells que es poden generar a partir d'un taulell inicial, és a dir, és el resultat de col·locar 1 fitxa a cada columna al taulell inicial
 taulellsGenerables :: Taulell -> Color -> [Taulell]
-taulellsGenerables (Taulell n m ma) color = [(ficaFitxa col color (Taulell n m ma)) | col <- [1..m], (\(Coord x y) -> x) (posicioFinal col (Taulell n m ma)) > 0]
+taulellsGenerables taulell@(Taulell n m ma) color = [(ficaFitxa col color taulell) | col <- [1..m], (\(Coord x y) -> x) (posicioFinal col taulell) > 0]
 
 --retorna totes les columnes a on es podria ficar una fitxa
 taulellsGenerablesCol :: Taulell -> [Int]
-taulellsGenerablesCol (Taulell n m ma)  = [ col | col <- [1..m], (\(Coord x y) -> x) (posicioFinal col (Taulell n m ma)) > 0]
+taulellsGenerablesCol taulell@(Taulell n m ma)  = [ col | col <- [1..m], (\(Coord x y) -> x) (posicioFinal col taulell) > 0]
 
 
 --segueix l'estratègia minmax per tal de generar un arbre de moviments possibles, els quals seran avaluats per obtenir una puntuació (els punts Grocs sumen i els Vermells resten), mitjançant la suposició de què l'enemic sempre farà el seu millor moviment, el jugador intentarà maximitzar o minimitzar la puntuació i escollirà el moviment que li porti a aquest resultat. 
@@ -578,7 +579,7 @@ iaGestio :: Estrategia -> Taulell -> IO()
 iaGestio ia taulell@(Taulell n m ma) = do
     if ia == Random then do
         r1 <- (randInt 1 m)
-        let taulellAct = (ficaFitxa r1 Groc (Taulell n m ma))
+        let taulellAct = (ficaFitxa r1 Groc taulell)
         putStrLn(show taulellAct)
         if ((detectaGuanyador taulellAct) == (Just Groc)) then do
             putStrLn("HAS PERDUT!  :(")
@@ -592,6 +593,9 @@ iaGestio ia taulell@(Taulell n m ma) = do
         if ((detectaGuanyador taulellAct) == (Just Groc)) then do
             putStrLn("HAS PERDUT!  :(")
             return()
+        else if (empat taulell) then do
+            putStrLn("EMPAT!  :/")
+            return()
         else
             (humaGestio ia taulellAct)
     else do
@@ -600,8 +604,13 @@ iaGestio ia taulell@(Taulell n m ma) = do
         if ((detectaGuanyador taulellAct) == (Just Groc)) then do
             putStrLn("HAS PERDUT!  :(")
             return()
+        else if (empat taulellAct) then do
+            putStrLn("EMPAT!  :/")
+            return()
         else
             (humaGestio ia taulellAct)
+            
+            
 humaGestio :: Estrategia -> Taulell -> IO()
 humaGestio ia taulell = do
         putStrLn("Tria la columna on vols deixar la peça: ")
@@ -614,7 +623,10 @@ humaGestio ia taulell = do
         if ((detectaGuanyador taulellAct) == (Just Vermell)) then do
             putStrLn("HAS GUANYAT!")
             return()
-        else
+        else if (empat taulellAct) then do
+            putStrLn("EMPAT!  :/")
+            return()
+        else 
             (iaGestio ia taulellAct)
         
         
@@ -659,9 +671,9 @@ main = do
             TODO:
             -Arreglar greedy.
             -intentar utilitzar més coses de haskell
-            -Que no ponga (Taulell n m ma en todos lados)
+            
             -Lo que me dijo el profe de pasar estrategia como parametro
-            -Smart
+            
             -Que no se puedan poner fichas si la columna esta llena
             -funcion de empate !!!!!!!!!
             -mirar que pasa con los maximums i los minimums
