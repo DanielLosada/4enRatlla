@@ -196,7 +196,21 @@ numEspaisDiagonalDretaDalt num (Coord x y) (Taulell n m ma)  count
     |Map.lookup (x,y) ma == Nothing = (numEspaisDiagonalDretaDalt num (Coord (x-1) (y+1)) (Taulell n m ma) (count+1))   
     |Map.lookup (x,y) ma /= Nothing = False  
   
+numEspaisDiagonalEsquerraBaix :: Int -> Coord -> Taulell -> Int -> Bool
+numEspaisDiagonalEsquerraBaix num (Coord x y) (Taulell n m ma)  count
+    |count >= num = True
+    |x < 1 || y < 1 || x > n || y > m = False 
+    |Map.lookup (x,y) ma == Nothing = (numEspaisDiagonalEsquerraBaix num (Coord (x+1) (y-1)) (Taulell n m ma) (count+1))   
+    |Map.lookup (x,y) ma /= Nothing = False
+    
+numEspaisDiagonalDretaBaix :: Int -> Coord -> Taulell -> Int -> Bool
+numEspaisDiagonalDretaBaix num (Coord x y) (Taulell n m ma)  count
+    |count >= num = True
+    |x < 1 || y < 1 || x > n || y > m = False 
+    |Map.lookup (x,y) ma == Nothing = (numEspaisDiagonalDretaBaix num (Coord (x+1) (y+1)) (Taulell n m ma) (count+1))   
+    |Map.lookup (x,y) ma /= Nothing = False  
 
+  
 numEspaisHoritzontalEsquerra :: Int -> Coord -> Taulell -> Int -> Bool
 numEspaisHoritzontalEsquerra num (Coord x y) (Taulell n m ma)  count
     |count >= num = True
@@ -229,6 +243,8 @@ numEnRatllaY4VerticalHoritzontalDiagonal num (Coord x y) taulell color
     |(numHoritzontalDreta num (Coord x y) taulell color 0) && (numEspaisHoritzontalDreta (4-num) (Coord x (y+num)) taulell  0) = True
     |(numDiagonalEsquerraDalt num (Coord x y) taulell color 0) && (numEspaisDiagonalEsquerraDalt (4-num) (Coord (x-num) (y-num)) taulell  0)= True
     |(numDiagonalDretaDalt num (Coord x y) taulell color 0) && (numEspaisDiagonalDretaDalt (4-num) (Coord (x-num) (y+num)) taulell  0) = True
+    |(numDiagonalEsquerraBaix num (Coord x y) taulell color 0) && (numEspaisDiagonalEsquerraBaix (4-num) (Coord (x+num) (y-num)) taulell  0) = True
+    |(numDiagonalDretaBaix num (Coord x y) taulell color 0) && (numEspaisDiagonalDretaBaix (4-num) (Coord (x+num) (y+num)) taulell  0) = True
     |otherwise = False    
     
 --Comprova totes les posicions de fitxes del color per veure si hi ha una fila de num fitxes amb la que en un futur es pugui arribar a 4.
@@ -382,7 +398,9 @@ numEnRatllaY4VerticalHoritzontalDiagonalPunts num (Coord x y) taulell color =
     (fromEnum ((numHoritzontalEsquerra num (Coord x y) taulell color 0) && (numEspaisHoritzontalEsquerra (4-num) (Coord x (y-num)) taulell 0))) + 
     (fromEnum ((numHoritzontalDreta num (Coord x y) taulell color 0) && (numEspaisHoritzontalDreta (4-num) (Coord x (y+num)) taulell  0))) + 
     (fromEnum ((numDiagonalEsquerraDalt num (Coord x y) taulell color 0) && (numEspaisDiagonalEsquerraDalt (4-num) (Coord (x-num) (y-num)) taulell  0))) + 
-    (fromEnum ((numDiagonalDretaDalt num (Coord x y) taulell color 0) && (numEspaisDiagonalDretaDalt (4-num) (Coord (x-num) (y+num)) taulell  0)))
+    (fromEnum ((numDiagonalDretaDalt num (Coord x y) taulell color 0) && (numEspaisDiagonalDretaDalt (4-num) (Coord (x-num) (y+num)) taulell  0))) +
+    (fromEnum((numDiagonalEsquerraBaix num (Coord x y) taulell color 0) && (numEspaisDiagonalEsquerraBaix (4-num) (Coord (x+num) (y-num)) taulell  0))) +
+    (fromEnum((numDiagonalDretaBaix num (Coord x y) taulell color 0) && (numEspaisDiagonalDretaBaix (4-num) (Coord (x+num) (y+num)) taulell  0))) 
 
 
 --Avalua el taulell segons la distribució de peces del color escollit, suma 10 per cada seqüència de 2 fitxes seguides i 20 per cadascuna de 3 seguides. També mira totes les peces individualment i suma punts contra més centrades estiguin, ja que en general, com estar al centre del taulell dóna més possibilitats de joc, és millor idea centrar les peces.

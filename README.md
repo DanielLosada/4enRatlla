@@ -19,11 +19,8 @@ import System.Random
 
 ### Compilar i executar
 
-1-Descomprimir l'archiu.
+1-Descomprimir l'arxiu.
 
-```
-Give the example
-```
 
 2-Compilar:
 
@@ -47,11 +44,12 @@ El jugador humà juga amb les fitxes vermelles (V) i la IA amb les grogues (G).
 
 El taulell té la numeració de les columnes just a sota, funcionant de terra.
 
-Quan el joc demana un moviment s'ha d'introduir unicament el número de la columna on vols deixar la peça.
+Quan el joc pregunta per la N i la M, introduir únicament el número desitjat.
+Quan el joc pregunta per la dificultat, introduir únicament el número que apareix a l'índex.
+Quan el joc pregunta si vols començar respondre únicament si o no.
+Quan el joc demana un moviment s'ha d'introduir únicament el número de la columna on vols deixar la peça.
 
-L'estrategia smart no sempre fa el 4 en ratlla quan pot, això es degut a que fa un altre moviment que ja sap que té 100% de posibilitats d'acabar guanyant igualment, i fa més tirades de les necesaries per guanyar. Ho he deixat així ja que em semba bé que faci això, perquè sembla que s'hagi equivocat i sembla una mica més humà.
-```
-Give an example
-```
+L'estratègia smart no sempre fa el 4 en ratlla quan pot, això és degut a que fa un altre moviment que ja sap que té 100% de possibilitats d'acabar guanyant igualment, i fa més tirades de les necessàries per guanyar. Ho he deixat així, ja que em sembla bé que faci això, perquè sembla que s'hagi equivocat i sembla una mica més humà.
+
 
 
