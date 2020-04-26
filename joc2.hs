@@ -337,6 +337,15 @@ readColor ' ' = Nothing
 
 --IA--
 --Random
+
+randomMove :: Taulell -> Color -> IO Int
+randomMove taulell@(Taulell n m ma) color = do
+    col <- randInt 1 m
+    if ((\(Coord x y) -> x) (posicioFinal col taulell) > 0) then do
+        return col
+    else do
+        randomMove taulell color
+
 randInt :: Int -> Int -> IO Int
 -- randInt low high is an IO action that returns a
 -- pseudo-random integer between low and high (both included).
@@ -413,6 +422,10 @@ escullTirada (Taulell n m ma) [] = head [y | y <- [1..m],(\(Coord x y) -> x) (po
 escullTirada _ [x] = x
 escullTirada _ xs =  last (take ((length xs) `div` 2) xs)
 
+greedyIO :: Taulell -> Color -> IO Int 
+greedyIO taulell color= do
+    let res = greedy taulell color
+    return res
 
 greedy :: Taulell -> Color -> Int
 greedy taulell@(Taulell n m ma) color
@@ -428,7 +441,7 @@ greedy taulell@(Taulell n m ma) color
 
 --Realitza una ponderació en forma de campana de Gauss, de forma que les columnes dels extrems valen 0 punts i van sumant x fins arribar al punt mitg 
 punts :: Int -> Int -> Int 
-punts m col = ((minimum [(col-1),(m-col)]) * 7)
+punts m col = ((minimum [(col-1),(m-col)]) * 0)
 
  --numEnRatllaY4VerticalHoritzontalDiagonal :: Int -> Coord -> Taulell -> Color -> Bool
 
@@ -472,6 +485,12 @@ taulellsGenerablesCol :: Taulell -> [Int]
 taulellsGenerablesCol taulell@(Taulell n m ma)  = [ col | col <- [1..m], (\(Coord x y) -> x) (posicioFinal col taulell) > 0]
 
 
+smartMinMaxIO :: Taulell -> Color -> IO Int 
+smartMinMaxIO taulell color = do
+    let res = smartMinMax taulell color
+    return res
+    
+
 --segueix l'estratègia minmax per tal de generar un arbre de moviments possibles, els quals seran avaluats per obtenir una puntuació (els punts Grocs sumen i els Vermells resten), mitjançant la suposició de què l'enemic sempre farà el seu millor moviment, el jugador intentarà maximitzar o minimitzar la puntuació i escollirà el moviment que li porti a aquest resultat. 
 smartMinMax :: Taulell -> Color -> Int
 smartMinMax  taulell color  
@@ -494,13 +513,14 @@ smartMinMaxRec depth taulell@(Taulell n m ma) color maximitza =
             else
                 minimum [(smartMinMaxRec (depth - 1) tau (canviColor color) True) | tau <-(taulellsGenerables taulell color)]
                     
-        
+--retorna la parella (punts,col) amb punts màxims        
 maxim :: [(Int,Int)] -> (Int,Int)
 maxim ((punts,col):xs)
     |xs == [] || punts > puntsxs = (punts,col)
     |otherwise = (puntsxs,colxs)
     where (puntsxs,colxs) = maxim xs
-
+          
+--retorna la parella (punts,col) amb punts mínims        
 minim :: [(Int,Int)] -> (Int,Int)
 minim ((punts,col):xs)
     |xs == [] || punts < puntsxs = (punts,col)
@@ -570,16 +590,18 @@ fesMoviment x taulell
     |x == Greedy = (ficaFitxa (greedy taulell Groc) Groc taulell)
     |otherwise = undefined
 
-jugada :: (Taulell -> Color -> Int) -> Taulell -> Color -> Taulell
-jugada fun taulell color = (ficaFitxa (fun taulell color) color taulell)
+jugada :: (Taulell -> Color -> IO Int) -> Taulell -> Color -> IO Taulell
+jugada fun taulell color = do
+    x <- (fun taulell color)
+    let tau = (ficaFitxa x color taulell)
+    return tau
 
 
     
 iaGestio :: Estrategia -> Taulell -> IO()
 iaGestio ia taulell@(Taulell n m ma) = do
     if ia == Random then do
-        r1 <- (randInt 1 m)
-        let taulellAct = (ficaFitxa r1 Groc taulell)
+        taulellAct <- (jugada randomMove taulell Groc)
         putStrLn(show taulellAct)
         if ((detectaGuanyador taulellAct) == (Just Groc)) then do
             putStrLn("HAS PERDUT!  :(")
@@ -588,7 +610,8 @@ iaGestio ia taulell@(Taulell n m ma) = do
             (humaGestio ia taulellAct)
         
     else if ia == Greedy then do
-        let taulellAct = (jugada greedy taulell Groc)
+        taulellAct <- (jugada greedyIO taulell Groc)
+       -- let taulellAct = (jugada greedyIO taulell Groc)
         putStrLn(show taulellAct)
         if ((detectaGuanyador taulellAct) == (Just Groc)) then do
             putStrLn("HAS PERDUT!  :(")
@@ -599,7 +622,7 @@ iaGestio ia taulell@(Taulell n m ma) = do
         else
             (humaGestio ia taulellAct)
     else do
-        let taulellAct = (jugada smartMinMax taulell Groc)
+        taulellAct <- (jugada smartMinMaxIO taulell Groc)
         putStrLn(show taulellAct)
         if ((detectaGuanyador taulellAct) == (Just Groc)) then do
             putStrLn("HAS PERDUT!  :(")
@@ -617,6 +640,11 @@ humaGestio ia taulell = do
         x <- getLine
         let col = (read x::Int)
         --ficaFitxa :: Int -> Color -> Taulell -> Taulell
+        --putStrLn("Col = " ++ x ++ read(((\(Coord x y) -> x) (posicioFinal col taulell)) > 0)::[Char])
+       -- if (((\(Coord x y) -> x) (posicioFinal col taulell)) > 0) then do
+        --    putStrLn("AQUESTA POSICIÓ ESTÀ FORA DEL TAULELL, ESCULL UNA ALTRE")
+        --    (humaGestio ia taulell)
+       -- else do
         let taulellAct = (ficaFitxa col Vermell taulell)
         putStrLn(show taulellAct)
         --detectaGuanyador :: Taulell -> Maybe Color
@@ -628,7 +656,7 @@ humaGestio ia taulell = do
             return()
         else 
             (iaGestio ia taulellAct)
-        
+            
         
 main :: IO ()
 main = do
