@@ -38,6 +38,24 @@ obteCoord [] = []
 obteCoord (((ia,ib),c):xs) = [(Coord ia ib)] ++ (obteCoord xs)
 
 
+--Canvia un color per l'altre.
+canviColor :: Color -> Color
+canviColor color
+    |color == Groc = Vermell
+    |otherwise = Groc
+
+    
+showColor :: Maybe Color -> Char
+showColor Nothing = ' '
+showColor (Just c)
+    |c == Groc = 'G'
+    |otherwise = 'V'
+
+    
+
+obteColor :: Char ->  Color
+obteColor 'G' = Groc
+obteColor 'V' = Vermell
 
     
 --Obté els elements d'un mateix color d'un taulell
@@ -284,33 +302,20 @@ insereixPeca (Coord n m) c (Taulell nn mm t) = (Taulell nn mm (Map.insert (n,m) 
 inicialitzaTaulell :: Int -> Int -> Taulell
 inicialitzaTaulell n m = (Taulell n m Map.empty)
 
---Retorna el color del guanyador en cas que hi hagi.
-detectaGuanyador :: Taulell -> Maybe Color
-detectaGuanyador taulell
-    |(numEnRatlla 4 Groc taulell) = Just Groc
-    |(numEnRatlla 4 Vermell taulell) = Just Vermell
-    |otherwise = Nothing
 
 
 
-showColor :: Maybe Color -> Char
-showColor Nothing = ' '
-showColor (Just c)
-    |c == Groc = 'G'
-    |otherwise = 'V'
-
-    
-
-obteColor :: Char ->  Color
-obteColor 'G' = Groc
-obteColor 'V' = Vermell
 
 
 
 
 --IA--
---Random
 
+ ----------------------------
+ ----------------------------
+ ----------RANDOM-------------
+ ----------------------------
+ ----------------------------
 --Retorna una columna random
 randomMove :: Taulell -> Color -> IO Int
 randomMove taulell@(Taulell n m ma) color = do
@@ -329,13 +334,12 @@ randInt low high = do
     let result = low + random `mod` (high - low + 1)
     return result
 
---Greedy
+----------------------------
+ ----------------------------
+ ----------GREEDY-------------
+ ----------------------------
+ ----------------------------
 
---Canvia un color per l'altre.
-canviColor :: Color -> Color
-canviColor color
-    |color == Groc = Vermell
-    |otherwise = Groc
 
 --Retorna les coord a les que s'ha de tirar per evitar el 4 en ralla del color si hi ha, en cas de que hi hagin 2 posicions que li permetin fer 4 en ratlla, retornarà només la primera, ja que només pot fer un moviment hi haurà perdut igualment, i si per casualitat l'enemic no fa un dels dos moviments guanyadors, a la seguent ronda es tornarà a cridar la funció i retornarà l'unic punt de tall que quedi
 tallar4enRalla :: Taulell -> Color -> Maybe Int
@@ -379,12 +383,11 @@ greedy taulell@(Taulell n m ma) color
     |(esJust (tallar4enRalla taulell (canviColor color))) = (\(Just i)->i) $ (tallar4enRalla taulell (canviColor color))
     |otherwise = escullTirada taulell (maximPecesIa taulell color)
     
- --------------------------------------------------
- -------------------------------------------------
- 
+ ----------------------------
+ ----------------------------
  ----------SMART-------------
  ----------------------------
- 
+ ----------------------------
 
 --Realitza una ponderació en forma de campana de Gauss, de forma que les columnes dels extrems valen 0 punts i van sumant x fins a arribar al punt mitjà. Això ho fa perquè contra més centrades estiguin les fitxes, més possibilitats de fer 4 en ratlla tindran.
 punts :: Int -> Int -> Int 
@@ -426,6 +429,20 @@ smartMinMaxIO taulell color = do
     let res = smartMinMax taulell color
     return res
     
+--Retorna la parella (punts,col) amb punts màxims.     
+maxim :: [(Int,Int)] -> (Int,Int)
+maxim ((punts,col):xs)
+    |xs == [] || punts > puntsxs = (punts,col)
+    |otherwise = (puntsxs,colxs)
+    where (puntsxs,colxs) = maxim xs
+          
+--Retorna la parella (punts,col) amb punts mínims.      
+minim :: [(Int,Int)] -> (Int,Int)
+minim ((punts,col):xs)
+    |xs == [] || punts < puntsxs = (punts,col)
+    |otherwise = (puntsxs,colxs)
+    where (puntsxs,colxs) = minim xs
+    
 
 --Segueix l'estratègia minmax per tal de generar un arbre de moviments possibles, els quals seran avaluats per obtenir una puntuació (els punts Grocs sumen i els Vermells resten), mitjançant la suposició de què l'enemic sempre farà el seu millor moviment, el jugador intentarà maximitzar o minimitzar la puntuació i escollirà el moviment que li porti a aquest resultat. 
 smartMinMax :: Taulell -> Color -> Int
@@ -449,25 +466,19 @@ smartMinMaxRec depth taulell@(Taulell n m ma) color maximitza =
             else
                 minimum [(smartMinMaxRec (depth - 1) tau (canviColor color) True) | tau <-(taulellsGenerables taulell color)]
                     
---Retorna la parella (punts,col) amb punts màxims.     
-maxim :: [(Int,Int)] -> (Int,Int)
-maxim ((punts,col):xs)
-    |xs == [] || punts > puntsxs = (punts,col)
-    |otherwise = (puntsxs,colxs)
-    where (puntsxs,colxs) = maxim xs
-          
---Retorna la parella (punts,col) amb punts mínims.      
-minim :: [(Int,Int)] -> (Int,Int)
-minim ((punts,col):xs)
-    |xs == [] || punts < puntsxs = (punts,col)
-    |otherwise = (puntsxs,colxs)
-    where (puntsxs,colxs) = minim xs
 
     
                                                         
  ----------------------------
  ----------------------------
  
+--Retorna el color del guanyador en cas que hi hagi.
+detectaGuanyador :: Taulell -> Maybe Color
+detectaGuanyador taulell
+    |(numEnRatlla 4 Groc taulell) = Just Groc
+    |(numEnRatlla 4 Vermell taulell) = Just Vermell
+    |otherwise = Nothing
+
 
 --retorna true si el taulell està ple.
 empat :: Taulell -> Bool
